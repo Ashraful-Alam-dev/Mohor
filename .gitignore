@@ -1,0 +1,16 @@
+# Dependency folders
+**/node_modules/
+
+# Next.js build output
+**/frontend/.next/
+**/frontend/out/
+
+# Production environment variables / secrets
+**/backend/.env
+**/frontend/.env.local
+**/frontend/.env.production
+
+# System logs and crash dumps
+*.log
+npm-debug.log*
+.DS_Store
