@@ -1,12 +1,11 @@
 import express from 'express';
-import { registerUser, loginUser } from './authController.js';
+import { authMiddleware } from '../../middleware/authMiddleware.js';
+import { registerUser, loginUser, getCurrentUser } from './authController.js';
 
 const router = express.Router();
 
-// POST /api/auth/register (Requires Firebase OTP validation)
 router.post('/register', registerUser);
-
-// POST /api/auth/login (Credentials-only validation)
 router.post('/login', loginUser);
+router.get('/me', authMiddleware, getCurrentUser);
 
 export default router;
