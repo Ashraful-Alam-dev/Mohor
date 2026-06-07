@@ -1,23 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation"; // Import the router for redirection
+import { useAuth } from "@/context/AuthContext"; // Adjust this path to match your file structure
 import api from "@/services/api";
 import KpiCard from "@/components/KpiCard";
 
 export default function AdminDashboard() {
+  const router = useRouter();
+  const { user, loading: authLoading, isAdmin } = useAuth(); // Extract auth states
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
 
+  // 1. Guard the route using AuthContext state
   useEffect(() => {
-    loadDashboard();
-  }, []);
+    if (!authLoading) {
+      if (!user || !isAdmin) {
+        router.push("/login"); // or wherever your fallback / login page is
+      } else {
+        loadDashboard();
+      }
+    }
+  }, [authLoading, user, isAdmin, router]);
 
   const loadDashboard = async () => {
     try {
-      setLoading(true);
-
+      setDataLoading(true);
       const [productRes, categoryRes] = await Promise.all([
         api.get("/products"),
         api.get("/products/categories"),
@@ -26,9 +36,9 @@ export default function AdminDashboard() {
       setProducts(productRes.data.products);
       setCategories(categoryRes.data.categories);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     } finally {
-      setLoading(false);
+      setDataLoading(false);
     }
   };
 
@@ -41,7 +51,8 @@ export default function AdminDashboard() {
 
   const recentProducts = products.slice(0, 5);
 
-  if (loading) {
+  // 2. Show spinner if Auth is processing OR if product data is fetching
+  if (authLoading || (!user || !isAdmin) || dataLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="h-10 w-10 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin" />
@@ -49,6 +60,7 @@ export default function AdminDashboard() {
     );
   }
 
+  // 3. Render dashboard structure securely
   return (
     <div className="min-h-screen bg-neutral-50 flex">
       {/* MAIN CONTENT */}
@@ -63,7 +75,7 @@ export default function AdminDashboard() {
           <KpiCard title="Total Categories" value={totalCategories} />
           <KpiCard
             title="Inventory Value"
-            value={`BDT${inventoryValue.toFixed(2)}`}
+            value={`BDT ${inventoryValue.toFixed(2)}`}
           />
         </div>
 
@@ -86,7 +98,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <p className="text-sm font-bold text-emerald-700">
-                    ${p.price}
+                    BDT{p.price}
                   </p>
                 </div>
               ))}

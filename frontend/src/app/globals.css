@@ -1,6 +1,103 @@
 @import "tailwindcss";
 
-body {
-  background: #fafafa;
-  color: #111827;
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-butter: var(--butter);
+  --color-cream: var(--cream);
+  --color-mustard: var(--mustard);
+  --color-ink: var(--ink);
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.75rem;
+  --butter: oklch(89.27% 0.06963 98.666);
+  --cream: oklch(0.985 0.03 95);
+  --mustard: oklch(0.78 0.15 80);
+  --ink: oklch(0.18 0.02 80);
+  --background: var(--butter);
+  --foreground: var(--ink);
+  --card: var(--cream);
+  --card-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--butter);
+  --secondary: oklch(0.93 0.06 95);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.94 0.04 95);
+  --muted-foreground: oklch(0.45 0.03 80);
+  --accent: var(--mustard);
+  --accent-foreground: var(--ink);
+  --destructive: oklch(0.55 0.2 27);
+  --border: oklch(0.85 0.04 90);
+  --input: oklch(0.88 0.04 90);
+  --ring: var(--mustard);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html, body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+ body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(oklch(0.18 0.02 80 / 0.08) 1px, transparent 1px);
+    background-size: 8px 4px;
+  }
+  .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+  }
+}
+
+@layer utilities {
+  .marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 35s linear infinite;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .grain::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(oklch(0.18 0.02 80 / 0.06) 1px, transparent 1px);
+    background-size: 3px 3px;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+  }
+  .hover-lift {
+    transition: transform .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .hover-lift:hover {
+    transform: translateY(-6px);
+  }
+  .animate-marquee {
+    animation: marquee 35s linear infinite;
+  }
+}
+
+::selection {
+  background-color: var(--mustard);
+  color: var(--ink);
 }
