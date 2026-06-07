@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -15,6 +14,7 @@ export default function ProductDetails({ product }) {
   );
 
   // Modal Control States
+  const [successToast, setSuccessToast] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [chosenQuantity, setChosenQuantity] = useState(1);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -44,7 +44,8 @@ export default function ProductDetails({ product }) {
     try {
       await addToCart(product.id, chosenQuantity);
       setShowModal(false);
-      alert(`Successfully added ${chosenQuantity} unit(s) of ${product.name} to your cart.`);
+      setSuccessToast(true);
+      setTimeout(() => setSuccessToast(false), 2000);
     } catch (err) {
       alert(err.message || "Failed to sync cart item selection.");
     } finally {
@@ -54,7 +55,12 @@ export default function ProductDetails({ product }) {
 
   return (
     <section
-      style={{ maxWidth: "80rem", margin: "0 auto", padding: "2.5rem 1.25rem" }}
+      style={{
+        maxWidth: "80rem",
+        margin: "0 auto",
+        padding: "2.5rem 1.25rem",
+        minHeight: "100vh",
+      }}
     >
       <style>{`
         @keyframes categoryGlow {
@@ -322,7 +328,9 @@ export default function ProductDetails({ product }) {
             </button>
 
             <button
-              onClick={() => alert("Direct ordering pipeline integration queued next.")}
+              onClick={() =>
+                alert("Direct ordering pipeline integration queued next.")
+              }
               className="product-btn"
               disabled={product.quantity === 0}
               style={{ flex: 1, maxWidth: "180px" }}
@@ -335,58 +343,240 @@ export default function ProductDetails({ product }) {
 
       {/* 📊 INTERACTIVE QUANTITY POPUP ELEMENT */}
       {showModal && (
-        <div className="fixed inset-0 bg-neutral-950/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-6">
-            <div className="text-center">
-              <h3 className="font-black text-neutral-950 dark:text-white uppercase tracking-tight text-sm">
-                Select Purchase Depth
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "oklch(0.18 0.02 80 / 0.6)",
+            backdropFilter: "blur(6px)",
+            zIndex: 100,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1rem",
+          }}
+        >
+          <div
+            style={{
+              background: "var(--cream)",
+              border: "1px solid var(--border)",
+              borderRadius: "1.5rem",
+              width: "100%",
+              maxWidth: "360px",
+              padding: "1.75rem",
+              boxShadow: "0 8px 40px oklch(0.18 0.02 80 / 0.2)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.5rem",
+            }}
+          >
+            {/* Header */}
+            <div style={{ textAlign: "center" }}>
+              <h3
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 900,
+                  fontSize: "1.1rem",
+                  color: "var(--ink)",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                How many would you like?
               </h3>
-              <p className="text-xs text-neutral-400 mt-1">
-                Choose item allocation constraints for {product.name}
+              <p
+                style={{
+                  fontSize: "0.78rem",
+                  color: "oklch(0.5 0.04 80)",
+                  marginTop: "0.35rem",
+                  fontFamily: "var(--font-sans)",
+                }}
+              >
+                {product.name}
               </p>
             </div>
 
-            {/* Counter Section */}
-            <div className="flex items-center justify-center gap-6">
-              <button 
+            {/* Counter */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "1.5rem",
+              }}
+            >
+              <button
                 type="button"
-                disabled={chosenQuantity <= 1} 
-                onClick={() => setChosenQuantity(prev => prev - 1)}
-                className="w-10 h-10 border border-neutral-200 dark:border-neutral-800 rounded-xl font-bold hover:bg-neutral-50 dark:hover:bg-neutral-800 disabled:opacity-30 text-sm cursor-pointer"
+                disabled={chosenQuantity <= 1}
+                onClick={() => setChosenQuantity((prev) => prev - 1)}
+                style={{
+                  width: "2.5rem",
+                  height: "2.5rem",
+                  borderRadius: "0.75rem",
+                  border: "1px solid var(--border)",
+                  background: "var(--butter)",
+                  color: "var(--ink)",
+                  fontWeight: 700,
+                  fontSize: "1.1rem",
+                  cursor: chosenQuantity <= 1 ? "not-allowed" : "pointer",
+                  opacity: chosenQuantity <= 1 ? 0.3 : 1,
+                  fontFamily: "var(--font-sans)",
+                }}
               >
-                -
+                −
               </button>
-              <span className="text-xl font-black font-mono w-12 text-center text-neutral-950 dark:text-white">
+              <span
+                style={{
+                  fontSize: "1.5rem",
+                  fontWeight: 900,
+                  color: "var(--ink)",
+                  fontFamily: "var(--font-sans)",
+                  minWidth: "2rem",
+                  textAlign: "center",
+                }}
+              >
                 {chosenQuantity}
               </span>
-              <button 
+              <button
                 type="button"
-                disabled={chosenQuantity >= product.quantity} 
-                onClick={() => setChosenQuantity(prev => prev + 1)}
-                className="w-10 h-10 border border-neutral-200 dark:border-neutral-800 rounded-xl font-bold hover:bg-neutral-50 dark:hover:bg-neutral-800 disabled:opacity-30 text-sm cursor-pointer"
+                disabled={chosenQuantity >= product.quantity}
+                onClick={() => setChosenQuantity((prev) => prev + 1)}
+                style={{
+                  width: "2.5rem",
+                  height: "2.5rem",
+                  borderRadius: "0.75rem",
+                  border: "1px solid var(--border)",
+                  background: "var(--butter)",
+                  color: "var(--ink)",
+                  fontWeight: 700,
+                  fontSize: "1.1rem",
+                  cursor:
+                    chosenQuantity >= product.quantity
+                      ? "not-allowed"
+                      : "pointer",
+                  opacity: chosenQuantity >= product.quantity ? 0.3 : 1,
+                  fontFamily: "var(--font-sans)",
+                }}
               >
                 +
               </button>
             </div>
 
-            {/* Modal Action Row */}
-            <div className="flex gap-2 pt-2">
-              <button 
+            {/* Buttons */}
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="flex-1 py-3 border border-neutral-200 dark:border-neutral-800 rounded-xl text-xs font-bold text-neutral-500 hover:bg-neutral-50 cursor-pointer"
+                style={{
+                  flex: 1,
+                  padding: "0.75rem",
+                  borderRadius: "0.75rem",
+                  border: "1px solid var(--border)",
+                  background: "var(--butter)",
+                  color: "oklch(0.5 0.04 80)",
+                  fontWeight: 600,
+                  fontSize: "0.875rem",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-sans)",
+                  transition: "box-shadow 0.2s, background 0.2s",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.boxShadow =
+                    "0 0 18px 6px oklch(0.25 0.25 27 / 0.5 )")
+                }
+                onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
               >
                 Cancel
               </button>
-              <button 
+              <button
                 type="button"
                 onClick={handleConfirmDone}
                 disabled={isSyncing}
-                className="flex-1 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider disabled:opacity-50 cursor-pointer"
+                style={{
+                  flex: 1,
+                  padding: "0.75rem",
+                  borderRadius: "0.75rem",
+                  border: "none",
+                  background: isSyncing
+                    ? "oklch(0.72 0.12 80)"
+                    : "oklch(0.35 0.08 60)",
+                  color: "var(--butter)",
+                  fontWeight: 700,
+                  fontSize: "0.875rem",
+                  cursor: isSyncing ? "not-allowed" : "pointer",
+                  fontFamily: "var(--font-sans)",
+                  transition: "box-shadow 0.2s, background 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSyncing) {
+                    e.currentTarget.style.background = "oklch(0.28 0.08 60)";
+                    e.currentTarget.style.boxShadow =
+                      "0 0 14px 4px oklch(0.45 0.1 60 / 0.5)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSyncing) {
+                    e.currentTarget.style.background = "oklch(0.35 0.08 60)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }
+                }}
               >
-                {isSyncing ? "Syncing..." : "Done"}
+                {isSyncing ? "Adding..." : "Confirm"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {successToast && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "2rem",
+            right: "2rem",
+            zIndex: 200,
+            background: "var(--cream)",
+            border: "1px solid var(--mustard)",
+            borderRadius: "1rem",
+            padding: "1rem 1.5rem",
+            boxShadow: "0 8px 32px oklch(0.18 0.02 80 / 0.2)",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            fontFamily: "var(--font-sans)",
+            animation: "fadeInUp 0.3s ease-out",
+          }}
+        >
+          <style>{`
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+    `}</style>
+          <span
+            style={{
+              fontSize: "1.25rem",
+            }}
+          >
+            🛒
+          </span>
+          <div>
+            <p
+              style={{
+                fontWeight: 700,
+                color: "var(--ink)",
+                fontSize: "0.875rem",
+              }}
+            >
+              Added to cart!
+            </p>
+            <p
+              style={{
+                fontSize: "0.75rem",
+                color: "oklch(0.5 0.04 80)",
+                marginTop: "0.1rem",
+              }}
+            >
+              {chosenQuantity} × {product.name}
+            </p>
           </div>
         </div>
       )}
