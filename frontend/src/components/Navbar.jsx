@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { ShoppingCart, Settings, Info, User } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext"; // 🛒 Import the Cart Context Hook
 import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const { user } = useAuth();
+  const { cartCount } = useCart(); // 📊 Destructure the cumulative piece counter
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -18,30 +20,30 @@ export default function Navbar() {
   return (
     <>
       <style>{`
-          @keyframes navGlow {
-    0%   { box-shadow: 0 0 6px 1px oklch(0.25 0.15 80 / 0.4); }
-    14%  { box-shadow: 0 0 14px 4px oklch(0.25 0.15 80 / 0.45); }
-    28%  { box-shadow: 0 0 6px 1px oklch(0.25 0.15 80 / 0.29); }
-    42%  { box-shadow: 0 0 10px 3px oklch(0.25 0.15 80 / 0.35); }
-    70%  { box-shadow: 0 0 6px 1px oklch(0.25 0.15 80 / 0.15); }
-    100% { box-shadow: 0 0 6px 1px oklch(0.25 0.15 80 / 0.2); }
-  }
-  @keyframes textPulse {
-    0%   { color: oklch(0.45 0.15 80); }
-    14%  { color: oklch(0.30 0.18 80); }
-    28%  { color: oklch(0.45 0.15 80); }
-    42%  { color: oklch(0.35 0.17 80); }
-    70%  { color: oklch(0.45 0.15 80); }
-    100% { color: oklch(0.45 0.15 80); }
-  }
-  @keyframes logoGlow {
-    0%   { text-shadow: 0 0 8px oklch(0.18 0.02 80 / 0.4), 0 0 20px oklch(0.18 0.02 80 / 0.2); }
-    14%  { text-shadow: 0 0 16px oklch(0.18 0.02 80 / 0.8), 0 0 40px oklch(0.18 0.02 80 / 0.5); }
-    28%  { text-shadow: 0 0 8px oklch(0.18 0.02 80 / 0.4), 0 0 20px oklch(0.18 0.02 80 / 0.2); }
-    42%  { text-shadow: 0 0 12px oklch(0.18 0.02 80 / 0.6), 0 0 30px oklch(0.18 0.02 80 / 0.35); }
-    70%  { text-shadow: 0 0 8px oklch(0.18 0.02 80 / 0.3), 0 0 20px oklch(0.18 0.02 80 / 0.15); }
-    100% { text-shadow: 0 0 8px oklch(0.18 0.02 80 / 0.4), 0 0 20px oklch(0.18 0.02 80 / 0.2); }
-  }
+        @keyframes navGlow {
+          0%   { box-shadow: 0 0 6px 1px oklch(0.25 0.15 80 / 0.4); }
+          14%  { box-shadow: 0 0 14px 4px oklch(0.25 0.15 80 / 0.45); }
+          28%  { box-shadow: 0 0 6px 1px oklch(0.25 0.15 80 / 0.29); }
+          42%  { box-shadow: 0 0 10px 3px oklch(0.25 0.15 80 / 0.35); }
+          70%  { box-shadow: 0 0 6px 1px oklch(0.25 0.15 80 / 0.15); }
+          100% { box-shadow: 0 0 6px 1px oklch(0.25 0.15 80 / 0.2); }
+        }
+        @keyframes textPulse {
+          0%   { color: oklch(0.45 0.15 80); }
+          14%  { color: oklch(0.30 0.18 80); }
+          28%  { color: oklch(0.45 0.15 80); }
+          42%  { color: oklch(0.35 0.17 80); }
+          70%  { color: oklch(0.45 0.15 80); }
+          100% { color: oklch(0.45 0.15 80); }
+        }
+        @keyframes logoGlow {
+          0%   { text-shadow: 0 0 8px oklch(0.18 0.02 80 / 0.4), 0 0 20px oklch(0.18 0.02 80 / 0.2); }
+          14%  { text-shadow: 0 0 16px oklch(0.18 0.02 80 / 0.8), 0 0 40px oklch(0.18 0.02 80 / 0.5); }
+          28%  { text-shadow: 0 0 8px oklch(0.18 0.02 80 / 0.4), 0 0 20px oklch(0.18 0.02 80 / 0.2); }
+          42%  { text-shadow: 0 0 12px oklch(0.18 0.02 80 / 0.6), 0 0 30px oklch(0.18 0.02 80 / 0.35); }
+          70%  { text-shadow: 0 0 8px oklch(0.18 0.02 80 / 0.3), 0 0 20px oklch(0.18 0.02 80 / 0.15); }
+          100% { text-shadow: 0 0 8px oklch(0.18 0.02 80 / 0.4), 0 0 20px oklch(0.18 0.02 80 / 0.2); }
+        }
         .nav-item {
           display: flex;
           align-items: center;
@@ -124,10 +126,40 @@ export default function Navbar() {
               Settings
             </button>
 
-            <button className="nav-item" style={{ padding: "6px 10px" }}>
-              <ShoppingCart size={18} />
-              Cart
-            </button>
+            <Link 
+              href="/cart" 
+              className="nav-item" 
+              style={{ padding: "6px 10px", display: "flex", alignItems: "center", relative: "relative" }}
+            >
+              <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
+                <ShoppingCart size={18} />
+                {cartCount > 0 && (
+                  <span 
+                    style={{
+                      position: "absolute",
+                      top: "-6px",
+                      right: "-6px",
+                      background: "oklch(0.55 0.2 27)",
+                      color: "white",
+                      fontSize: "10px",
+                      fontWeight: 900,
+                      borderRadius: "99px",
+                      minWidth: "14px",
+                      height: "14px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "0 4px",
+                      fontFamily: "var(--font-sans)",
+                      boxShadow: "0 2px 8px oklch(0.55 0.2 27 / 0.4)"
+                    }}
+                  >
+                    {cartCount}
+                  </span>
+                )}
+              </div>
+              <span style={{ marginLeft: cartCount > 0 ? "8px" : "0px" }}>Cart</span>
+            </Link>
 
             {user ? (
               <button className="nav-item">
