@@ -18,15 +18,20 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           {/* 2. Cart context sits inside Auth so it can listen to login/logout states safely */}
           <CartProvider>
-            
-            <div className="min-h-screen flex flex-col bg-neutral-50 dark:bg-neutral-950">
+            <div
+              className="min-h-screen flex flex-col"
+              style={{
+                background: "var(--butter)",
+                backgroundImage:
+                  "radial-gradient(oklch(0.18 0.02 80 / 0.08) 1px, transparent 1px)",
+                backgroundSize: "8px 4px",
+              }}
+            >
               <Navbar />
-              
+
               {/* This ensures your page contents flex grow to keep footer pinned at bottom */}
-              <main className="flex-grow">
-                {children}
-              </main>
-              
+              <main className="flex-grow">{children}</main>
+
               <Footer />
             </div>
 
