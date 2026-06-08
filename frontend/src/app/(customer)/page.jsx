@@ -83,11 +83,85 @@ export default function HomePage() {
     <>
       <div className="min-h-screen">
         {/* HERO */}
-        <div className="bg-emerald-700 text-white py-16 px-6 text-center">
-          <h1 className="text-4xl font-black mb-3">Mohor Store</h1>
-          <p className="text-emerald-100 text-sm max-w-xl mx-auto">
-            Discover premium products at unbeatable prices. Modern, fast, and
-            reliable shopping experience.
+        <div
+          style={{
+            background: "oklch(0.35 0.08 60)",
+            padding: "4rem 1.5rem 3.5rem",
+            textAlign: "center",
+            position: "relative",
+            overflow: "hidden",
+            backgroundImage:
+              "radial-gradient(oklch(1 0 0 / 0.04) 1px, transparent 1px)",
+            backgroundSize: "8px 4px",
+          }}
+        >
+          {/* Store name */}
+          <p
+            style={{
+              fontSize: "0.7rem",
+              fontWeight: 900,
+              textTransform: "uppercase",
+              letterSpacing: "0.22em",
+              color: "oklch(0.78 0.15 80 / 0.7)",
+              fontFamily: "var(--font-sans)",
+              marginBottom: "1.25rem",
+            }}
+          >
+            VOL. 01 · SPRING EDIT 2026
+          </p>
+
+          <h1
+            className="font-display"
+            style={{
+              fontSize: "clamp(2.8rem, 8vw, 5.5rem)",
+              fontWeight: 900,
+              lineHeight: 1.05,
+              color: "var(--butter)",
+              letterSpacing: "-0.02em",
+              marginBottom: "0",
+            }}
+          >
+            MOHOR
+          </h1>
+
+          <p
+            className="font-display"
+            style={{
+              fontSize: "clamp(1.6rem, 5vw, 3.2rem)",
+              fontWeight: 400,
+              fontStyle: "italic",
+              lineHeight: 1.15,
+              color: "var(--butter)",
+              marginTop: "0.5rem",
+            }}
+          >
+            Soft <em style={{ color: "var(--mustard)" }}>like</em> sunlight,
+          </p>
+          <p
+            className="font-display"
+            style={{
+              fontSize: "clamp(1.6rem, 5vw, 3.2rem)",
+              fontWeight: 900,
+              lineHeight: 1.1,
+              color: "var(--mustard)",
+            }}
+          >
+            worn loud.
+          </p>
+
+          <p
+            style={{
+              fontSize: "0.9rem",
+              color: "oklch(0.89 0.06 98 / 0.75)",
+              maxWidth: "36rem",
+              margin: "1.5rem auto 0",
+              lineHeight: 1.75,
+              fontFamily: "var(--font-sans)",
+            }}
+          >
+            Born from the ancient, quiet hum of the loom, we catch the golden
+            warmth of the midday sun only to drape it over our shoulders, and
+            shake the world.
           </p>
         </div>
 
@@ -129,11 +203,44 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-4 mt-4 flex gap-2 flex-wrap">
           <button
             onClick={() => handleCategory("all")}
-            className={`px-4 py-2 rounded-full text-sm border ${
-              selectedCategory === "all"
-                ? "bg-emerald-700 text-white"
-                : "bg-white"
-            }`}
+            style={{
+              padding: "0.5rem 1.1rem",
+              borderRadius: "99px",
+              fontSize: "0.8rem",
+              fontWeight: 700,
+              fontFamily: "var(--font-sans)",
+              border: "1px solid var(--border)",
+              cursor: "pointer",
+              transition:
+                "background 0.2s, box-shadow 0.2s, transform 0.15s, color 0.2s",
+              background:
+                selectedCategory === "all"
+                  ? "oklch(0.35 0.08 60)"
+                  : "var(--cream)",
+              color:
+                selectedCategory === "all" ? "var(--butter)" : "var(--ink)",
+              boxShadow:
+                selectedCategory === "all"
+                  ? "0 4px 14px oklch(0.35 0.08 60 / 0.35)"
+                  : "none",
+            }}
+            onMouseEnter={(e) => {
+              if (selectedCategory !== "all") {
+                e.currentTarget.style.background = "oklch(0.35 0.08 60)";
+                e.currentTarget.style.color = "var(--butter)";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 14px oklch(0.35 0.08 60 / 0.35)";
+                e.currentTarget.style.transform = "translateY(-2px)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (selectedCategory !== "all") {
+                e.currentTarget.style.background = "var(--cream)";
+                e.currentTarget.style.color = "var(--ink)";
+                e.currentTarget.style.boxShadow = "none";
+                e.currentTarget.style.transform = "translateY(0)";
+              }
+            }}
           >
             All
           </button>
@@ -142,11 +249,45 @@ export default function HomePage() {
             <button
               key={i}
               onClick={() => handleCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm border capitalize ${
-                selectedCategory === cat
-                  ? "bg-emerald-700 text-white"
-                  : "bg-white"
-              }`}
+              style={{
+                padding: "0.5rem 1.1rem",
+                borderRadius: "99px",
+                fontSize: "0.8rem",
+                fontWeight: 700,
+                fontFamily: "var(--font-sans)",
+                border: "1px solid var(--border)",
+                cursor: "pointer",
+                textTransform: "capitalize",
+                transition:
+                  "background 0.2s, box-shadow 0.2s, transform 0.15s, color 0.2s",
+                background:
+                  selectedCategory === cat
+                    ? "oklch(0.35 0.08 60)"
+                    : "var(--cream)",
+                color:
+                  selectedCategory === cat ? "var(--butter)" : "var(--ink)",
+                boxShadow:
+                  selectedCategory === cat
+                    ? "0 4px 14px oklch(0.35 0.08 60 / 0.35)"
+                    : "none",
+              }}
+              onMouseEnter={(e) => {
+                if (selectedCategory !== cat) {
+                  e.currentTarget.style.background = "oklch(0.35 0.08 60)";
+                  e.currentTarget.style.color = "var(--butter)";
+                  e.currentTarget.style.boxShadow =
+                    "0 4px 14px oklch(0.35 0.08 60 / 0.35)";
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selectedCategory !== cat) {
+                  e.currentTarget.style.background = "var(--cream)";
+                  e.currentTarget.style.color = "var(--ink)";
+                  e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }
+              }}
             >
               {cat}
             </button>
