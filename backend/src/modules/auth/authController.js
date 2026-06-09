@@ -1,4 +1,5 @@
-import { createUserService, findUserByPhoneService, findUserByIdService } from './authService.js';
+import pool from '../../config/db.js';
+import { createUserService, findUserByPhoneService, findUserByIdService, updateUserService, updateUserPasswordService  } from './authService.js';
 import admin from '../../config/firebase.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -137,6 +138,69 @@ export const getCurrentUser = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Failed to fetch profile',
+    });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, phone, address } = req.body;
+
+    const updated = await updateUserService(req.user.id, {
+      name,
+      phone,
+      address,
+    });
+
+    return res.json({
+      success: true,
+      user: updated,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+// CHANGE PASSWORD
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    const [rows] = await pool.execute(
+      "SELECT password FROM users WHERE id = ?",
+      [req.user.id]
+    );
+
+    const user = rows[0];
+
+    const match = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+
+    if (!match) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password incorrect",
+      });
+    }
+
+    await updateUserPasswordService(
+      req.user.id,
+      newPassword
+    );
+
+    return res.json({
+      success: true,
+      message: "Password updated",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
     });
   }
 };

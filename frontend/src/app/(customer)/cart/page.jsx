@@ -3,9 +3,11 @@
 import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function CartPage() {
+  const router = useRouter();
   const { cart, cartLoading, cartTotal, updateQuantity, removeFromCart } =
     useCart();
   const [toast, setToast] = useState(null);
@@ -483,7 +485,7 @@ export default function CartPage() {
               </div>
 
               <button
-                onClick={() => alert("Proceeding to checkout...")}
+                onClick={() => router.push("/checkout")}
                 className="cart-btn"
                 style={{ padding: "0.875rem 2.5rem", fontSize: "0.875rem" }}
                 onMouseEnter={(e) => {
