@@ -31,14 +31,14 @@ export default function CartPage() {
         70%  { box-shadow: 0 0 6px 1px oklch(0.45 0.1 60 / 0.25); }
         100% { box-shadow: 0 0 6px 1px oklch(0.45 0.1 60 / 0.3); }
       }
-      @keyframes purpleGlow {
-        0%   { text-shadow: 0 0 6px oklch(0.55 0.2 300 / 0.4), 0 0 15px oklch(0.45 0.2 300 / 0.2); }
-        14%  { text-shadow: 0 0 12px oklch(0.55 0.2 300 / 0.9), 0 0 30px oklch(0.45 0.2 300 / 0.5); }
-        28%  { text-shadow: 0 0 6px oklch(0.55 0.2 300 / 0.4), 0 0 15px oklch(0.45 0.2 300 / 0.2); }
-        42%  { text-shadow: 0 0 10px oklch(0.55 0.2 300 / 0.7), 0 0 22px oklch(0.45 0.2 300 / 0.35); }
-        70%  { text-shadow: 0 0 6px oklch(0.55 0.2 300 / 0.3), 0 0 15px oklch(0.45 0.2 300 / 0.15); }
-        100% { text-shadow: 0 0 6px oklch(0.55 0.2 300 / 0.4), 0 0 15px oklch(0.45 0.2 300 / 0.2); }
-      }
+      @keyframes categoryGlow {
+   0%   { text-shadow: 0 0 6px oklch(0.45 0.12 60 / 0.4), 0 0 15px oklch(0.35 0.1 60 / 0.2); }
+  14%  { text-shadow: 0 0 12px oklch(0.45 0.12 60 / 0.9), 0 0 30px oklch(0.35 0.1 60 / 0.5); }
+  28%  { text-shadow: 0 0 6px oklch(0.45 0.12 60 / 0.4), 0 0 15px oklch(0.35 0.1 60 / 0.2); }
+  42%  { text-shadow: 0 0 10px oklch(0.45 0.12 60 / 0.7), 0 0 22px oklch(0.35 0.1 60 / 0.35); }
+  70%  { text-shadow: 0 0 6px oklch(0.45 0.12 60 / 0.3), 0 0 15px oklch(0.35 0.1 60 / 0.15); }
+  100% { text-shadow: 0 0 6px oklch(0.45 0.12 60 / 0.4), 0 0 15px oklch(0.35 0.1 60 / 0.2); }
+}
       .cart-btn {
         padding: 0.6rem 1.25rem;
         borderRadius: 0.75rem;
@@ -191,12 +191,12 @@ export default function CartPage() {
               href="/"
               style={{
                 display: "inline-block",
-                color: "oklch(0.55 0.2 300)",
+                color: "oklch(0.45 0.12 60)",
                 fontSize: "0.875rem",
                 fontWeight: 700,
                 fontFamily: "var(--font-sans)",
                 textDecoration: "none",
-                animation: "purpleGlow 2.4s ease-in-out infinite",
+                animation: "categoryGlow 2.4s ease-in-out infinite",
                 letterSpacing: "0.05em",
               }}
             >

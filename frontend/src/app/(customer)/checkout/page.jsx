@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import { useCart } from '@/context/CartContext';
-import { useOrder } from '@/context/OrderContext';
-import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
-import api from '@/services/api';
+import { useSearchParams, useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
+import { useOrder } from "@/context/OrderContext";
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+import api from "@/services/api";
 
 export default function CheckoutPage() {
   const searchParams = useSearchParams();
@@ -15,30 +15,30 @@ export default function CheckoutPage() {
   const { cart, cartTotal } = useCart();
   const { processCheckout, orderLoading } = useOrder();
 
-  const directProductId = searchParams.get('product_id');
-  const directQty = parseInt(searchParams.get('qty')) || 1;
+  const directProductId = searchParams.get("product_id");
+  const directQty = parseInt(searchParams.get("qty")) || 1;
 
   const [directProduct, setDirectProduct] = useState(null);
   const [directLoading, setDirectLoading] = useState(false);
 
   // Delivery fields
-  const [name, setName] = useState('');
-  const [shippingAddress, setShippingAddress] = useState('');
-  const [phone, setPhone] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('COD');
+  const [name, setName] = useState("");
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [phone, setPhone] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("COD");
 
-useEffect(() => {
-  if (user?.role === 'admin') {
-    router.replace('/');
-  }
-}, [user, router]);
+  useEffect(() => {
+    if (user?.role === "admin") {
+      router.replace("/");
+    }
+  }, [user, router]);
 
   // Auto-fill user data
   useEffect(() => {
     if (user) {
-      setName(user.name || ''); // ✅ FIXED: default receiver name
-      setShippingAddress(user.address || user.shipping_address || '');
-      setPhone(user.phone || '');
+      setName(user.name || ""); // ✅ FIXED: default receiver name
+      setShippingAddress(user.address || user.shipping_address || "");
+      setPhone(user.phone || "");
     }
   }, [user]);
 
@@ -46,11 +46,14 @@ useEffect(() => {
   useEffect(() => {
     if (directProductId) {
       setDirectLoading(true);
-      api.get(`/products/${directProductId}`)
-        .then(res => {
+      api
+        .get(`/products/${directProductId}`)
+        .then((res) => {
           if (res.data?.success) setDirectProduct(res.data.product);
         })
-        .catch(() => toast.error('Failed to parse direct purchase product lines.'))
+        .catch(() =>
+          toast.error("Failed to parse direct purchase product lines."),
+        )
         .finally(() => setDirectLoading(false));
     }
   }, [directProductId]);
@@ -58,37 +61,43 @@ useEffect(() => {
   const isDirect = !!directProductId;
 
   const activeItems = isDirect
-    ? (directProduct ? [{ ...directProduct, selected_quantity: directQty }] : [])
+    ? directProduct
+      ? [{ ...directProduct, selected_quantity: directQty }]
+      : []
     : cart;
 
   const activeTotal = isDirect
-    ? (directProduct ? parseFloat(directProduct.price) * directQty : 0)
+    ? directProduct
+      ? parseFloat(directProduct.price) * directQty
+      : 0
     : cartTotal;
 
   const handlePlaceOrderSubmit = async (e) => {
     e.preventDefault();
 
     if (!activeItems.length)
-      return toast.error('No items mapped inside order workflow parameters.');
+      return toast.error("No items mapped inside order workflow parameters.");
 
     if (!shippingAddress.trim() || !phone.trim())
-      return toast.error('Please input a valid phone and shipping delivery point.');
+      return toast.error(
+        "Please input a valid phone and shipping delivery point.",
+      );
 
     try {
       const payload = {
-        items: activeItems.map(item => ({
+        items: activeItems.map((item) => ({
           product_id: item.id || item.product_id,
-          selected_quantity: item.selected_quantity
+          selected_quantity: item.selected_quantity,
         })),
         shippingAddress,
         phone,
         paymentMethod,
-        clearCart: !isDirect
+        clearCart: !isDirect,
       };
 
       await processCheckout(payload);
-      toast.success('🎉 Order successfully generated!');
-      router.push('/');
+      toast.success("🎉 Order successfully generated!");
+      router.push("/");
     } catch (err) {
       toast.error(err.message);
     }
@@ -101,141 +110,336 @@ useEffect(() => {
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen py-10 px-4 bg-[var(--cream)] flex items-center justify-center">
-      <div className="w-full max-w-4xl grid md:grid-cols-2 gap-8 bg-white/70 backdrop-blur-md p-8 rounded-2xl border border-orange-200/60 shadow-xl shadow-orange-900/5 animate-fade-in">
+    <div className="min-h-screen py-10 px-4 flex items-center justify-center">
+      <style>{`
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes btnGlow {
+        0%   { box-shadow: 0 0 6px 1px oklch(0.45 0.1 60 / 0.3); }
+        14%  { box-shadow: 0 0 16px 5px oklch(0.45 0.1 60 / 0.6); }
+        28%  { box-shadow: 0 0 6px 1px oklch(0.45 0.1 60 / 0.3); }
+        42%  { box-shadow: 0 0 12px 3px oklch(0.45 0.1 60 / 0.5); }
+        70%  { box-shadow: 0 0 6px 1px oklch(0.45 0.1 60 / 0.25); }
+        100% { box-shadow: 0 0 6px 1px oklch(0.45 0.1 60 / 0.3); }
+      }
+      @keyframes categoryGlow {
+       0%   { text-shadow: 0 0 6px oklch(0.45 0.12 60 / 0.4), 0 0 15px oklch(0.35 0.1 60 / 0.2); }
+       14%  { text-shadow: 0 0 12px oklch(0.45 0.12 60 / 0.9), 0 0 30px oklch(0.35 0.1 60 / 0.5); }
+       28%  { text-shadow: 0 0 6px oklch(0.45 0.12 60 / 0.4), 0 0 15px oklch(0.35 0.1 60 / 0.2); }
+        42%  { text-shadow: 0 0 10px oklch(0.45 0.12 60 / 0.7), 0 0 22px oklch(0.35 0.1 60 / 0.35); }
+       70%  { text-shadow: 0 0 6px oklch(0.45 0.12 60 / 0.3), 0 0 15px oklch(0.35 0.1 60 / 0.15); }
+        100% { text-shadow: 0 0 6px oklch(0.45 0.12 60 / 0.4), 0 0 15px oklch(0.35 0.1 60 / 0.2); }
+       }
+      .checkout-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        background: oklch(0.96 0.03 85);
+        color: var(--ink);
+        outline: none;
+        font-family: var(--font-sans);
+        font-size: 0.875rem;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+      }
+      .checkout-input:focus {
+        border-color: var(--mustard);
+        box-shadow: 0 0 0 3px oklch(0.78 0.15 80 / 0.15), 0 6px 20px oklch(0.18 0.02 80 / 0.1);
+        transform: translateY(-2px);
+      }
+      .checkout-input:-webkit-autofill,
+      .checkout-input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 30px oklch(0.96 0.03 85) inset !important;
+        -webkit-text-fill-color: var(--ink) !important;
+      }
+      .field-label {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: oklch(0.5 0.04 80);
+        margin-bottom: 0.4rem;
+        font-family: var(--font-sans);
+        text-transform: uppercase;
+      }
+      .brown-btn {
+        background: oklch(0.35 0.08 60);
+        color: var(--butter);
+        border: none;
+        border-radius: 0.75rem;
+        font-weight: 700;
+        font-family: var(--font-sans);
+        cursor: pointer;
+        transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+      }
+      .brown-btn:hover {
+        background: oklch(0.28 0.08 60);
+        animation: btnGlow 2.4s ease-in-out infinite;
+        transform: translateY(-2px);
+      }
+      .brown-btn:disabled {
+        background: oklch(0.75 0.02 80);
+        color: oklch(0.55 0.02 80);
+        cursor: not-allowed;
+        animation: none;
+        transform: none;
+      }
+       .summary-item {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         padding: 0.75rem 0.5rem;
+        border-bottom: 1px solid var(--border);
+        transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+        border-radius: 0.75rem;
+        background: var(--cream);
+        margin-bottom: 0.4rem;
+        box-shadow: 0 2px 8px oklch(0.18 0.02 80 / 0.06);
+        }
+       .summary-item:hover {
+        background: oklch(0.985 0.03 95);
+         transform: translateX(4px);
+         box-shadow: 0 4px 16px oklch(0.18 0.02 80 / 0.12);
+       }
+    `}</style>
 
-        {/* LEFT SIDE */}
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "56rem",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "2rem",
+          background: "var(--cream)",
+          backdropFilter: "blur(12px)",
+          padding: "2.5rem",
+          borderRadius: "1.5rem",
+          border: "1px solid var(--border)",
+          boxShadow:
+            "0 8px 40px oklch(0.18 0.02 80 / 0.12), 0 0 35px 8px oklch(0.78 0.15 80 / 0.25)",
+          animation: "fadeInUp 0.4s ease-out",
+        }}
+      >
+        {/* LEFT — Delivery Form */}
         <div>
-          <h2 className="text-2xl font-display font-black text-neutral-900 mb-6 tracking-tight">
-            Delivery Manifest
+          <h2
+            className="font-display"
+            style={{
+              fontSize: "1.75rem",
+              fontWeight: 900,
+              color: "var(--ink)",
+              marginBottom: "1.5rem",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Delivery Details
           </h2>
 
-          <form onSubmit={handlePlaceOrderSubmit} className="space-y-4">
-
-            {/* Receiver Name (AUTO-FILLED BUT EDITABLE) */}
+          <form
+            onSubmit={handlePlaceOrderSubmit}
+            style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+          >
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1">
-                Receiver Name
-              </label>
+              <label className="field-label">Receiver Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Receiver Name"
-                className="w-full bg-white border border-orange-200 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 px-4 py-2.5 rounded-xl font-medium text-neutral-800 text-sm transition-all"
+                placeholder="Receiver name"
+                className="checkout-input"
                 required
               />
             </div>
 
-            {/* Phone */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1">
-                Contact Number
-              </label>
+              <label className="field-label">Contact Number</label>
               <input
                 type="text"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full bg-white border border-orange-200 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 px-4 py-2.5 rounded-xl font-medium text-neutral-800 text-sm transition-all"
+                placeholder="+8801XXXXXXXXX"
+                className="checkout-input"
                 required
               />
             </div>
 
-            {/* Address */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1">
-                Destination Address
-              </label>
+              <label className="field-label">Destination Address</label>
               <textarea
                 rows="3"
                 value={shippingAddress}
                 onChange={(e) => setShippingAddress(e.target.value)}
-                className="w-full bg-white border border-orange-200 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 px-4 py-2.5 rounded-xl font-medium text-neutral-800 text-sm transition-all resize-none"
+                className="checkout-input"
+                style={{ resize: "none" }}
                 required
               />
             </div>
 
-            {/* Payment Reference */}
             <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1">
-                Payment Reference ()
-            </label>
-
-            <input
+              <label className="field-label">Payment Reference</label>
+              <input
                 type="text"
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value)}
-                placeholder="Bkash-4801"
-                className="w-full bg-white border border-orange-200 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 px-4 py-2.5 rounded-xl font-bold text-neutral-800 text-sm transition-all"
+                placeholder="COD or transaction ID"
+                className="checkout-input"
                 required
-            />
-
-            <p className="text-[10px] text-neutral-400 mt-1">
-                Enter: “COD” for cash on delivery, transaction ID or Account Number for mobile banking
-            </p>
+              />
+              <p
+                style={{
+                  fontSize: "0.7rem",
+                  color: "oklch(0.6 0.03 80)",
+                  marginTop: "0.4rem",
+                  fontFamily: "var(--font-sans)",
+                }}
+              >
+                Enter "COD" for cash on delivery, or transaction ID for mobile
+                banking
+              </p>
             </div>
 
             <button
               type="submit"
+              className="brown-btn"
               disabled={orderLoading || !activeItems.length}
-              className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-neutral-300 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-amber-700/20 tracking-wide uppercase text-xs mt-6"
+              style={{
+                width: "100%",
+                padding: "0.875rem",
+                fontSize: "0.95rem",
+                marginTop: "0.5rem",
+              }}
             >
               {orderLoading
-                ? 'Processing Verification...'
-                : `Authorize Order • ৳ ${activeTotal}`}
+                ? "Processing..."
+                : `Place Order • ৳ ${activeTotal}`}
             </button>
           </form>
         </div>
 
-        {/* RIGHT SIDE */}
-        <div className="bg-orange-50/50 border border-orange-100 p-6 rounded-2xl flex flex-col justify-between">
+        {/* RIGHT — Summary */}
+        <div
+          style={{
+            background: "var(--butter)",
+            border: "1px solid var(--border)",
+            borderRadius: "1.25rem",
+            padding: "1.5rem",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            boxShadow: "0 4px 20px oklch(0.18 0.02 80 / 0.08)",
+          }}
+        >
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-amber-800/80 mb-4">
-              Summary Validation
-            </h3>
+            <p
+              style={{
+                fontSize: "0.72rem",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.1em",
+                color: "oklch(0.45 0.12 60)",
+                fontFamily: "var(--font-sans)",
+                marginBottom: "1rem",
+                animation: "categoryGlow 2.4s ease-in-out infinite",
+              }}
+            >
+              Order Summary
+            </p>
 
-            <div className="space-y-4 max-h-[280px] overflow-y-auto pr-2">
+            <div
+              style={{
+                maxHeight: "280px",
+                overflowY: "auto",
+                paddingRight: "0.25rem",
+              }}
+            >
               {activeItems.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex justify-between items-center text-sm border-b border-orange-200/40 pb-3"
-                >
+                <div key={idx} className="summary-item">
                   <div>
-                    <h4 className="font-bold text-neutral-800 line-clamp-1">
+                    <h4
+                      style={{
+                        fontWeight: 700,
+                        fontSize: "0.875rem",
+                        color: "var(--ink)",
+                        fontFamily: "var(--font-sans)",
+                        marginBottom: "0.2rem",
+                      }}
+                    >
                       {item.name}
                     </h4>
-                    <p className="text-xs text-neutral-500 mt-0.5">
-                      Qty: {item.selected_quantity} × ৳{item.price}
+                    <p
+                      style={{
+                        fontSize: "0.75rem",
+                        color: "oklch(0.5 0.04 80)",
+                        fontFamily: "var(--font-sans)",
+                      }}
+                    >
+                      {item.selected_quantity} × ৳{item.price}
                     </p>
                   </div>
-
-                  <span className="font-bold text-neutral-900">
+                  <span
+                    style={{
+                      fontWeight: 800,
+                      fontSize: "0.95rem",
+                      color: "var(--ink)",
+                      fontFamily: "var(--font-sans)",
+                    }}
+                  >
                     ৳{parseFloat(item.price) * item.selected_quantity}
                   </span>
                 </div>
               ))}
 
               {!activeItems.length && (
-                <p className="text-sm text-neutral-400 italic text-center py-8">
-                  Your checkout basket is empty.
+                <p
+                  style={{
+                    fontSize: "0.875rem",
+                    color: "oklch(0.6 0.03 80)",
+                    textAlign: "center",
+                    padding: "2rem 0",
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
+                  No items in cart.
                 </p>
               )}
             </div>
           </div>
 
-          <div className="border-t border-orange-200/60 pt-4 mt-6">
-            <div className="flex justify-between items-baseline text-neutral-900">
-              <span className="font-display font-extrabold text-base">
-                Grand Total Allocation:
-              </span>
-              <span className="font-sans font-black text-2xl text-amber-700">
-                ৳ {activeTotal}
-              </span>
-            </div>
+          {/* Total */}
+          <div
+            style={{
+              borderTop: "1px solid var(--border)",
+              paddingTop: "1rem",
+              marginTop: "1.5rem",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "baseline",
+            }}
+          >
+            <span
+              className="font-display"
+              style={{
+                fontWeight: 900,
+                fontSize: "1rem",
+                color: "var(--ink)",
+              }}
+            >
+              Grand Total
+            </span>
+            <span
+              style={{
+                fontWeight: 900,
+                fontSize: "1.75rem",
+                color: "oklch(0.55 0.15 80)",
+                fontFamily: "var(--font-sans)",
+              }}
+            >
+              ৳ {activeTotal}
+            </span>
           </div>
-
         </div>
       </div>
     </div>
