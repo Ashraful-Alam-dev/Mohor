@@ -1,20 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, Settings, Info, User } from "lucide-react";
+import { ShoppingCart, Settings, Info, User, Menu, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useCart } from "@/context/CartContext"; // 🛒 Import the Cart Context Hook
+import { useCart } from "@/context/CartContext";
 import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const { user } = useAuth();
-  const { cartCount } = useCart(); // 📊 Destructure the cumulative piece counter
+  const { cartCount } = useCart();
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close menu on resize to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) setMenuOpen(false);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
@@ -44,6 +54,10 @@ export default function Navbar() {
           70%  { text-shadow: 0 0 8px oklch(0.18 0.02 80 / 0.3), 0 0 20px oklch(0.18 0.02 80 / 0.15); }
           100% { text-shadow: 0 0 8px oklch(0.18 0.02 80 / 0.4), 0 0 20px oklch(0.18 0.02 80 / 0.2); }
         }
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
         .nav-item {
           display: flex;
           align-items: center;
@@ -57,19 +71,39 @@ export default function Navbar() {
           font-family: var(--font-sans);
           padding: 6px 10px;
           border-radius: 0.5rem;
-          transition: color 0.2s, background 0.2s;
+          transition: background 0.2s;
           text-decoration: none;
           white-space: nowrap;
         }
         .nav-item:hover {
-          color: var(--mustard);
-          background: oklch(0.78 0.15 80 / 0.1);
-          animation: navGlow 2.4s ease-in-out infinite;
+          background: oklch(0.78 0.15 80 / 0.25);
+          animation: navGlow 2.4s ease-in-out infinite, textPulse 2.4s ease-in-out infinite;
         }
         .nav-item svg {
           width: 18px;
           height: 18px;
           flex-shrink: 0;
+        }
+        .mobile-nav-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 1rem;
+          font-weight: 600;
+          color: var(--ink);
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          font-family: var(--font-sans);
+          padding: 0.75rem 1rem;
+          border-radius: 0.75rem;
+          transition: background 0.2s, box-shadow 0.2s;
+          text-decoration: none;
+          width: 100%;
+        }
+        .mobile-nav-item:hover {
+          background: oklch(0.78 0.15 80 / 0.2);
+          box-shadow: 0 0 12px 3px oklch(0.25 0.15 80 / 0.2);
         }
       `}</style>
 
@@ -114,8 +148,15 @@ export default function Navbar() {
             Mohor
           </Link>
 
-          {/* Nav items */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          {/* Desktop Nav */}
+          <div
+            className="desktop-nav"
+            style={{ display: "flex", alignItems: "center", gap: "4px" }}
+          >
+            <style>{`
+              @media (max-width: 767px) { .desktop-nav { display: none !important; } }
+            `}</style>
+
             <button className="nav-item">
               <Info size={18} />
               About Us
@@ -126,34 +167,32 @@ export default function Navbar() {
               Settings
             </button>
 
-            <Link 
-              href="/cart" 
-              className="nav-item" 
-              style={{ padding: "6px 10px", display: "flex", alignItems: "center", relative: "relative" }}
+            <Link
+              href="/cart"
+              className="nav-item"
+              style={{ padding: "6px 10px", display: "flex", alignItems: "center" }}
             >
               <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
                 <ShoppingCart size={18} />
                 {cartCount > 0 && (
-                  <span 
-                    style={{
-                      position: "absolute",
-                      top: "-6px",
-                      right: "-6px",
-                      background: "oklch(0.55 0.2 27)",
-                      color: "white",
-                      fontSize: "10px",
-                      fontWeight: 900,
-                      borderRadius: "99px",
-                      minWidth: "14px",
-                      height: "14px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: "0 4px",
-                      fontFamily: "var(--font-sans)",
-                      boxShadow: "0 2px 8px oklch(0.55 0.2 27 / 0.4)"
-                    }}
-                  >
+                  <span style={{
+                    position: "absolute",
+                    top: "-6px",
+                    right: "-6px",
+                    background: "oklch(0.55 0.2 27)",
+                    color: "white",
+                    fontSize: "10px",
+                    fontWeight: 900,
+                    borderRadius: "99px",
+                    minWidth: "14px",
+                    height: "14px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "0 4px",
+                    fontFamily: "var(--font-sans)",
+                    boxShadow: "0 2px 8px oklch(0.55 0.2 27 / 0.4)",
+                  }}>
                     {cartCount}
                   </span>
                 )}
@@ -184,18 +223,126 @@ export default function Navbar() {
                   transition: "background 0.2s",
                   whiteSpace: "nowrap",
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "oklch(0.72 0.15 80)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "var(--mustard)")
-                }
+                onMouseEnter={(e) => (e.currentTarget.style.background = "oklch(0.72 0.15 80)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "var(--mustard)")}
               >
                 Get Started
               </Link>
             )}
           </div>
+
+          {/* Hamburger button — mobile only */}
+          <button
+            className="hamburger-btn"
+            onClick={() => setMenuOpen(!menuOpen)}
+            style={{
+              display: "none",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              padding: "6px",
+              borderRadius: "0.5rem",
+              color: "var(--ink)",
+              transition: "background 0.2s",
+            }}
+          >
+            <style>{`
+              @media (max-width: 767px) { .hamburger-btn { display: flex !important; align-items: center; justify-content: center; } }
+            `}</style>
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
+
+        {/* Mobile dropdown menu */}
+        {menuOpen && (
+          <div
+            style={{
+              background: "oklch(89.27% 0.06963 98.666 / 0.98)",
+              backdropFilter: "blur(12px)",
+              borderTop: "1px solid var(--border)",
+              padding: "0.75rem 1.25rem 1.25rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.25rem",
+              animation: "slideDown 0.2s ease-out",
+            }}
+          >
+            <button className="mobile-nav-item">
+              <Info size={18} />
+              About Us
+            </button>
+
+            <button className="mobile-nav-item">
+              <Settings size={18} />
+              Settings
+            </button>
+
+            <Link
+              href="/cart"
+              className="mobile-nav-item"
+              onClick={() => setMenuOpen(false)}
+            >
+              <div style={{ position: "relative", display: "inline-flex" }}>
+                <ShoppingCart size={18} />
+                {cartCount > 0 && (
+                  <span style={{
+                    position: "absolute",
+                    top: "-6px",
+                    right: "-6px",
+                    background: "oklch(0.55 0.2 27)",
+                    color: "white",
+                    fontSize: "10px",
+                    fontWeight: 900,
+                    borderRadius: "99px",
+                    minWidth: "14px",
+                    height: "14px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "0 4px",
+                    fontFamily: "var(--font-sans)",
+                  }}>
+                    {cartCount}
+                  </span>
+                )}
+              </div>
+              Cart
+            </Link>
+
+            {user ? (
+              <Link
+                href="/profile"
+                className="mobile-nav-item"
+                onClick={() => setMenuOpen(false)}
+              >
+                <User size={18} />
+                Profile
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setMenuOpen(false)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  fontSize: "1rem",
+                  fontWeight: 700,
+                  color: "var(--ink)",
+                  background: "var(--mustard)",
+                  padding: "0.75rem 1rem",
+                  borderRadius: "0.75rem",
+                  textDecoration: "none",
+                  fontFamily: "var(--font-sans)",
+                  transition: "background 0.2s",
+                  marginTop: "0.25rem",
+                }}
+              >
+                Get Started
+              </Link>
+            )}
+          </div>
+        )}
       </nav>
     </>
   );
