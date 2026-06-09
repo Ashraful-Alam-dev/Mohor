@@ -157,15 +157,15 @@ export default function Navbar() {
               @media (max-width: 767px) { .desktop-nav { display: none !important; } }
             `}</style>
 
-            <button className="nav-item">
+            <Link href="/about" className="nav-item">
               <Info size={18} />
-              About Us
-            </button>
+                About Us
+            </Link>
 
-            <button className="nav-item">
+            <Link href="/settings" className="nav-item">
               <Settings size={18} />
-              Settings
-            </button>
+                Settings
+            </Link>
 
             <Link
               href="/cart"
@@ -267,15 +267,21 @@ export default function Navbar() {
               animation: "slideDown 0.2s ease-out",
             }}
           >
-            <button className="mobile-nav-item">
-              <Info size={18} />
+            <Link
+              href="/about"
+              className="mobile-nav-item"
+              onClick={() => setMenuOpen(false)}
+            >
               About Us
-            </button>
+            </Link>
 
-            <button className="mobile-nav-item">
-              <Settings size={18} />
+            <Link
+              href="/settings"
+              className="mobile-nav-item"
+              onClick={() => setMenuOpen(false)}
+            >
               Settings
-            </button>
+            </Link>
 
             <Link
               href="/cart"

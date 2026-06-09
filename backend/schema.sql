@@ -67,3 +67,15 @@ CREATE TABLE order_items (
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
+
+CREATE TABLE audit_logs (
+    id VARCHAR(36) PRIMARY KEY,
+    entity_type VARCHAR(20) NULL,
+    entity_id VARCHAR(36) NULL,
+    action_type VARCHAR(50) NOT NULL, 
+    actor_user_id VARCHAR(36) NULL,
+    actor_name VARCHAR(255) NULL,
+    description TEXT NOT NULL, 
+    executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
