@@ -27,6 +27,10 @@ export default function AdminLayout({ children }) {
           <Link href="/admin/analytics" className="block hover:text-emerald-700">
             Analytics
           </Link>
+
+          <Link href="/admin/audit" className="block hover:text-emerald-700">
+            Audit Logs
+          </Link>
         </nav>
       </div>
 

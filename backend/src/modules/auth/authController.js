@@ -1,5 +1,6 @@
 import pool from '../../config/db.js';
 import { createUserService, findUserByPhoneService, findUserByIdService, updateUserService, updateUserPasswordService  } from './authService.js';
+import * as auditService from '../audit/auditService.js';
 import admin from '../../config/firebase.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -11,26 +12,30 @@ export const registerUser = async (req, res, next) => {
     if (!firebaseToken || !name || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Missing parameters. Name, password, and firebaseToken are required.'
+        message:
+          'Missing parameters. Name, password, and firebaseToken are required.',
       });
     }
 
     let decodedToken;
+
     try {
-      decodedToken = await admin.auth().verifyIdToken(firebaseToken);
+      decodedToken =
+        await admin.auth().verifyIdToken(firebaseToken);
     } catch (firebaseError) {
-      console.error("🔥 Firebase Token Verification Crash:", firebaseError.message);
       return res.status(401).json({
         success: false,
-        message: `Firebase identity verification failed: ${firebaseError.message}`
+        message: `Firebase identity verification failed: ${firebaseError.message}`,
       });
     }
 
     const phone = decodedToken.phone_number;
+
     if (!phone) {
       return res.status(400).json({
         success: false,
-        message: 'Firebase token is valid, but no verified phone number was found.'
+        message:
+          'Firebase token is valid, but no verified phone number was found.',
       });
     }
 
@@ -40,24 +45,35 @@ export const registerUser = async (req, res, next) => {
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message:
-          "Phone number already registered",
+        message: 'Phone number already registered',
       });
     }
-    const newUser = await createUserService({ name, phone, address, password });
+
+    const newUser =
+      await createUserService({
+        name,
+        phone,
+        address,
+        password,
+      });
+
+    // ✅ AUDIT LOG
+    await auditService.logUserCreated(
+      newUser,
+      null // system actor (no logged-in admin)
+    );
 
     return res.status(201).json({
       success: true,
       message: 'User registered successfully!',
-      user: newUser
+      user: newUser,
     });
-
   } catch (error) {
-    console.error("🚨 CRITICAL REGISTRATION CONTROLLER ERROR:", error);
-    
     return res.status(500).json({
       success: false,
-      message: error.message || 'Internal Server Error during registration process.'
+      message:
+        error.message ||
+        'Internal Server Error during registration process.',
     });
   }
 };
@@ -146,11 +162,30 @@ export const updateProfile = async (req, res) => {
   try {
     const { name, phone, address } = req.body;
 
-    const updated = await updateUserService(req.user.id, {
-      name,
-      phone,
-      address,
-    });
+    // 🔍 get old user FIRST (required for audit diff)
+    const oldUser =
+      await findUserByIdService(req.user.id);
+
+    if (!oldUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    const updated =
+      await updateUserService(req.user.id, {
+        name,
+        phone,
+        address,
+      });
+
+    // ✅ AUDIT LOG (only changed fields)
+    await auditService.logUserUpdated(
+      oldUser,
+      req.body,
+      req.user.id
+    );
 
     return res.json({
       success: true,
@@ -197,6 +232,15 @@ export const changePassword = async (req, res) => {
       success: true,
       message: "Password updated",
     });
+    
+    await auditService.createAuditLog({
+    actionType: 'User',
+    entityType: 'user',
+    entityId: req.user.id,
+    actorUserId: req.user.id,
+    description: 'Password was changed',
+    });
+
   } catch (err) {
     return res.status(500).json({
       success: false,

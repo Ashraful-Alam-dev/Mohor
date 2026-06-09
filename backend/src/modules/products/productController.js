@@ -1,11 +1,11 @@
 import * as productService from './productService.js';
+import * as auditService from '../audit/auditService.js';
 
 export const createProduct = async (req, res, next) => {
   try {
     const { name, description, price, quantity, category } = req.body;
 
-    if (!name || !price || quantity === undefined || !category)
-    {
+    if (!name || !price || quantity === undefined || !category) {
       return res.status(400).json({
         success: false,
         message: 'Missing core product specifications data.',
@@ -13,8 +13,18 @@ export const createProduct = async (req, res, next) => {
     }
 
     const product = await productService.createProduct({
-      name, description, price, quantity, category, files: req.files,
+      name,
+      description,
+      price,
+      quantity,
+      category,
+      files: req.files,
     });
+
+    await auditService.logProductCreated(
+      product,
+      req.user?.id || null
+    );
 
     res.status(201).json({
       success: true,
@@ -110,21 +120,43 @@ export const getCategories = async (req, res, next) => {
 
 export const updateProduct = async (req, res, next) => {
   try {
-    const success = await productService.updateProduct(
-      req.params.id,
-      req.body
-    );
+    const oldProduct =
+      await productService.getProductById(
+        req.params.id
+      );
+
+    if (!oldProduct) {
+      return res.status(404).json({
+        success: false,
+        message:
+          'Target drop-update model parameters not found.',
+      });
+    }
+
+    const success =
+      await productService.updateProduct(
+        req.params.id,
+        req.body
+      );
 
     if (!success) {
       return res.status(404).json({
         success: false,
-        message: 'Target drop-update model parameters not found.',
+        message:
+          'Target drop-update model parameters not found.',
       });
     }
 
+    await auditService.logProductUpdated(
+      oldProduct,
+      req.body,
+      req.user?.id || null
+    );
+
     res.status(200).json({
       success: true,
-      message: 'Product parameters successfully synced.',
+      message:
+        'Product parameters successfully synced.',
     });
   } catch (error) {
     next(error);
@@ -133,18 +165,41 @@ export const updateProduct = async (req, res, next) => {
 
 export const deleteProduct = async (req, res, next) => {
   try {
-    const success = await productService.deleteProduct(req.params.id);
+    const product =
+      await productService.getProductById(
+        req.params.id
+      );
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message:
+          'Target drop inventory item missing.',
+      });
+    }
+
+    const success =
+      await productService.deleteProduct(
+        req.params.id
+      );
 
     if (!success) {
       return res.status(404).json({
         success: false,
-        message: 'Target drop inventory item missing.',
+        message:
+          'Target drop inventory item missing.',
       });
     }
 
+    await auditService.logProductDeleted(
+      product,
+      req.user?.id || null
+    );
+
     res.status(200).json({
       success: true,
-      message: 'Product permanently scrubbed from system.',
+      message:
+        'Product permanently scrubbed from system.',
     });
   } catch (error) {
     next(error);
