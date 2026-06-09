@@ -7,7 +7,7 @@ import { auth } from "@/config/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 export default function SignupPage() {
-  const { login } = useAuth(); // Context integration
+  const { login } = useAuth(); 
 
   const [formData, setFormData] = useState({
     name: "",
@@ -80,7 +80,6 @@ export default function SignupPage() {
       const userCredential = await confirmationResult.confirm(otpCode);
       const firebaseToken = await userCredential.user.getIdToken();
 
-      // 1. Register User
       const registerResponse = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
         {
@@ -103,7 +102,6 @@ export default function SignupPage() {
         throw new Error(registerResult.message || "Registration failed");
       }
 
-      // 2. Auto Login (Maintains structural styling keys like your login layout)
       const loginResponse = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
         {
@@ -124,7 +122,6 @@ export default function SignupPage() {
         throw new Error("Login after registration failed");
       }
 
-      // Pass exact token payload directly down to your context provider
       login(loginResult.token, loginResult.user);
 
       setSuccessMessage("Account created successfully!");

@@ -45,7 +45,6 @@ export default function AdminAuditPanel() {
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
 
-      {/* HEADER */}
       <div>
         <h1 className="text-2xl font-black text-neutral-900">
           Audit Logs
@@ -54,8 +53,6 @@ export default function AdminAuditPanel() {
           System activity tracking for database interaction
         </p>
       </div>
-
-      {/* FILTER */}
       <div className="flex gap-2">
         {['all', 'product', 'user'].map((t) => (
           <button
@@ -72,24 +69,22 @@ export default function AdminAuditPanel() {
         ))}
       </div>
 
-      {/* LOGS */}
       <div className="bg-white border rounded-2xl p-6">
         <div className="relative border-l pl-6 space-y-6">
 
           {logs.map((log) => (
             <div key={log.id} className="relative">
 
-              {/* DOT */}
               <div className={`absolute -left-[30px] top-1 w-3 h-3 rounded-full ${
                 log.entity_type === 'product'
                   ? 'bg-amber-500'
                   : 'bg-indigo-500'
               }`} />
 
-              {/* CONTENT */}
+           
               <div className="space-y-1">
 
-                {/* TOP ROW */}
+               
                 <div className="flex justify-between items-center">
 
                   <span className={`text-[10px] px-2 py-0.5 rounded border font-bold uppercase ${
@@ -106,12 +101,12 @@ export default function AdminAuditPanel() {
 
                 </div>
 
-                {/* ACTOR */}
+               
                 <p className="text-[11px] text-neutral-500">
                   By: {log.actor_name || 'System'}
                 </p>
 
-                {/* DESCRIPTION */}
+              
                 <p className="text-sm font-semibold text-neutral-800">
                   {log.description}
                 </p>

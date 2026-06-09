@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function AdminLayout({ children }) {
   return (
     <div className="min-h-screen bg-neutral-50 flex">
-      {/* SIDEBAR ONLY ONCE */}
+      
       <div className="w-64 bg-white border-r p-5 hidden md:block">
         <h1 className="text-2xl font-black text-emerald-700 mb-8">
           Mohor Admin
@@ -34,7 +34,7 @@ export default function AdminLayout({ children }) {
         </nav>
       </div>
 
-      {/* MAIN CONTENT */}
+      
       <div className="flex-1">{children}</div>
     </div>
   );

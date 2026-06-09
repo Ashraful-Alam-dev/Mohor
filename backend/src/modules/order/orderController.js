@@ -41,7 +41,6 @@ export const getAdminOrders = async (req, res, next) => {
     const searchProduct = req.query.product || '';
     const rawOrders = await orderService.getAllOrdersForAdminFromDb(searchProduct);
 
-    // Forces parsing of stringified columns explicitly before transmission over network architecture
     const formattedOrders = rawOrders.map(order => ({
       ...order,
       items: typeof order.items === 'string' ? JSON.parse(order.items) : order.items

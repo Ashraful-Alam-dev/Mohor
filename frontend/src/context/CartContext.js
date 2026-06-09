@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import api from '@/services/api'; // (No curly braces since it's a default export!)
+import api from '@/services/api'; 
 
 const CartContext = createContext(null);
 
@@ -23,7 +23,7 @@ export function CartProvider({ children }) {
     setCartLoading(true);
     try {
       const res = await api.get('/cart');
-      // Axios wraps the backend payload inside res.data
+      
       if (res.data && res.data.success) {
         setCart(res.data.cart || []);
       }
@@ -38,7 +38,7 @@ export function CartProvider({ children }) {
     if (!user) throw new Error('Please login to add items to your cart.');
     
     try {
-      const res = await api.post('/cart', { productId, quantity }); // Axios handles JSON stringifying automatically!
+      const res = await api.post('/cart', { productId, quantity }); 
       if (res.data && res.data.success) {
         await fetchLiveCart();
         return true;

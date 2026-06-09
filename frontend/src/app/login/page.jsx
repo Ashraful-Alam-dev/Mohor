@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
-  const { login } = useAuth(); // Destructure the login function from context
+  const { login } = useAuth(); 
 
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -44,7 +44,7 @@ export default function LoginPage() {
         );
       }
 
-      // Use context to manage local state and auth token storage
+      
       login(result.token, result.user);
 
       setSuccessMessage(

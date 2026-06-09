@@ -56,11 +56,9 @@ export const registerUser = async (req, res, next) => {
         address,
         password,
       });
-
-    // ✅ AUDIT LOG
     await auditService.logUserCreated(
       newUser,
-      null // system actor (no logged-in admin)
+      null 
     );
 
     return res.status(201).json({
@@ -162,7 +160,6 @@ export const updateProfile = async (req, res) => {
   try {
     const { name, phone, address } = req.body;
 
-    // 🔍 get old user FIRST (required for audit diff)
     const oldUser =
       await findUserByIdService(req.user.id);
 
@@ -180,7 +177,6 @@ export const updateProfile = async (req, res) => {
         address,
       });
 
-    // ✅ AUDIT LOG (only changed fields)
     await auditService.logUserUpdated(
       oldUser,
       req.body,

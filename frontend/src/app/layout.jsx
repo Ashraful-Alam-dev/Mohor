@@ -10,7 +10,7 @@ export default function RootLayout({ children }) {
     <html
       lang="en"
       className="scroll-smooth"
-      data-scroll-behavior="smooth" // Add this line
+      data-scroll-behavior="smooth" 
       suppressHydrationWarning
     >
       <body

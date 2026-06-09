@@ -1,24 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation"; // Import the router for redirection
-import { useAuth } from "@/context/AuthContext"; // Adjust this path to match your file structure
+import { useRouter } from "next/navigation"; 
+import { useAuth } from "@/context/AuthContext"; 
 import api from "@/services/api";
 import KpiCard from "@/components/KpiCard";
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { user, loading: authLoading, isAdmin } = useAuth(); // Extract auth states
+  const { user, loading: authLoading, isAdmin } = useAuth(); 
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
 
-  // 1. Guard the route using AuthContext state
+  
   useEffect(() => {
     if (!authLoading) {
       if (!user || !isAdmin) {
-        router.push("/login"); // or wherever your fallback / login page is
+        router.push("/login"); 
       } else {
         loadDashboard();
       }
@@ -51,7 +51,6 @@ export default function AdminDashboard() {
 
   const recentProducts = products.slice(0, 5);
 
-  // 2. Show spinner if Auth is processing OR if product data is fetching
   if (authLoading || (!user || !isAdmin) || dataLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -60,16 +59,15 @@ export default function AdminDashboard() {
     );
   }
 
-  // 3. Render dashboard structure securely
   return (
     <div className="min-h-screen bg-neutral-50 flex">
-      {/* MAIN CONTENT */}
+     
       <div className="flex-1 p-6">
         <h2 className="text-2xl font-black mb-6">
           Dashboard Overview
         </h2>
 
-        {/* KPI GRID */}
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <KpiCard title="Total Products" value={totalProducts} />
           <KpiCard title="Total Categories" value={totalCategories} />
@@ -79,7 +77,7 @@ export default function AdminDashboard() {
           />
         </div>
 
-        {/* RECENT PRODUCTS */}
+       
         <div className="bg-white rounded-xl border p-5">
           <h3 className="font-bold mb-4">Recent Products</h3>
 

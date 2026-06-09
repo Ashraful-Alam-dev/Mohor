@@ -41,7 +41,6 @@ export const updateUserService = async (id, { name, phone, address }) => {
   return { id, name, phone, address };
 };
 
-/* ---------------- UPDATE PASSWORD ---------------- */
 export const updateUserPasswordService = async (id, newPassword) => {
   const hash = await bcrypt.hash(newPassword, 10);
 

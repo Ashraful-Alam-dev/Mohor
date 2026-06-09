@@ -1,14 +1,12 @@
 import Link from "next/link";
 
 export default function ProductCard({ product }) {
-  // Helper function to get the first image URL
   const getFirstImageUrl = () => {
     if (!product.images || product.images.length === 0) {
-      return "/placeholder.png"; // Fallback placeholder image
+      return "/placeholder.png"; 
     }
     
     const firstImage = product.images[0];
-    // Check if image is an object with url property or just a string
     return typeof firstImage === 'string' ? firstImage : firstImage.url;
   };
 
