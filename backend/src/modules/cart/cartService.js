@@ -1,22 +1,21 @@
 import pool from '../../config/db.js';
 import { v4 as uuidv4 } from 'uuid';
 
-// ADD ITEM OR INCREMENT EXTANT QUANTITY RECORD
+
 export const addItemToCartInDb = async (userId, { productId, quantity }) => {
-  // 1. Double check inventory pool parameters to prevent over-allocation
+  
   const [prodCheck] = await pool.execute('SELECT quantity FROM products WHERE id = ?', [productId]);
   if (prodCheck.length === 0) throw new Error('Target catalog item not found.');
   
   const availableStock = prodCheck[0].quantity;
 
-  // 2. Scan if user already has this specific item mapped inside their current cart session
   const [existingItem] = await pool.execute(
     'SELECT id, quantity FROM cart_items WHERE user_id = ? AND product_id = ?',
     [userId, productId]
   );
 
   if (existingItem.length > 0) {
-    // Item exists: Calculate prospective new total allocation depth
+    
     const newQuantity = existingItem[0].quantity + parseInt(quantity);
     
     if (newQuantity > availableStock) {
@@ -29,7 +28,7 @@ export const addItemToCartInDb = async (userId, { productId, quantity }) => {
     );
     return { itemId: existingItem[0].id, productId, quantity: newQuantity };
   } else {
-    // New item entry: Confirm initial selection doesn't overrun warehouse baseline metrics
+    
     if (parseInt(quantity) > availableStock) {
       throw new Error(`Requested allocation exceeds current stock of ${availableStock} units.`);
     }
@@ -59,14 +58,14 @@ export const getUserCartFromDb = async (userId) => {
     WHERE c.user_id = ?
   `;
   
-  // CRITICAL: Ensure userId is sent as an array parameter to satisfy mysql2 parameters
+  
   const [rows] = await pool.execute(query, [userId]); 
   return rows;
 };
 
-// MANUALLY ADJUST QUANTITY COUNTERS DIRECTLY
+
 export const updateCartItemQuantityInDb = async (userId, itemId, quantity) => {
-  // Pull core item metadata context to run inventory checks
+
   const [itemCheck] = await pool.execute(
     'SELECT product_id FROM cart_items WHERE id = ? AND user_id = ?',
     [itemId, userId]
@@ -85,7 +84,6 @@ export const updateCartItemQuantityInDb = async (userId, itemId, quantity) => {
   return result.affectedRows > 0;
 };
 
-// REMOVE EXPLICIT CART ITEM MATRIX LINE INDEX
 export const removeCartItemFromDb = async (userId, itemId) => {
   const [result] = await pool.execute(
     'DELETE FROM cart_items WHERE id = ? AND user_id = ?',

@@ -21,7 +21,6 @@ export default function CheckoutPage() {
   const [directProduct, setDirectProduct] = useState(null);
   const [directLoading, setDirectLoading] = useState(false);
 
-  // Delivery fields
   const [name, setName] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
   const [phone, setPhone] = useState("");
@@ -33,16 +32,14 @@ export default function CheckoutPage() {
     }
   }, [user, router]);
 
-  // Auto-fill user data
   useEffect(() => {
     if (user) {
-      setName(user.name || ""); // ✅ FIXED: default receiver name
+      setName(user.name || ""); 
       setShippingAddress(user.address || user.shipping_address || "");
       setPhone(user.phone || "");
     }
   }, [user]);
 
-  // Direct product load
   useEffect(() => {
     if (directProductId) {
       setDirectLoading(true);

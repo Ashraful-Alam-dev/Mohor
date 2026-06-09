@@ -28,14 +28,13 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
 
-  // BLOCK ADMIN USERS (FIXED)
   useEffect(() => {
   if (user && user.role === "admin") {
     setBlockedMsg(true);
 
     const timer = setTimeout(() => {
       router.replace("/");
-    }, 1200); // small delay so user sees message
+    }, 1200); 
 
     return () => clearTimeout(timer);
   }
@@ -73,7 +72,6 @@ export default function ProfilePage() {
   load();
 }, [user]);
 
-  // PROFILE UPDATE
   const updateProfile = async () => {
     setSaving(true);
     try {
@@ -87,7 +85,6 @@ export default function ProfilePage() {
     }
   };
 
-  // PASSWORD CHANGE
   const changePassword = async () => {
     if (!currentPassword || !newPassword) {
       return toast.error("Fill all password fields");
@@ -270,7 +267,7 @@ export default function ProfilePage() {
           gap: "2rem",
         }}
       >
-        {/* HEADER */}
+       
         <div
           style={{
             display: "flex",
@@ -304,7 +301,7 @@ export default function ProfilePage() {
             Back to Shop
           </button>
         </div>
-        {/* GRID */}
+        
         <div
           style={{
             display: "grid",
@@ -312,7 +309,7 @@ export default function ProfilePage() {
             gap: "1.5rem",
           }}
         >
-          {/* PROFILE CARD */}
+          
           <div
             className="profile-card"
             style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
@@ -444,7 +441,6 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* SECURITY ZONE — now in grid right column */}
           <div className="security-zone">
             <h2
               style={{
@@ -611,16 +607,56 @@ export default function ProfilePage() {
                       {new Date(order.ordertime).toLocaleString()}
                     </p>
                   </div>
+
+                  <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-end",
+                    gap: "0.35rem",
+                  }}
+                >
                   <p
                     style={{
                       fontWeight: 800,
                       fontSize: "0.95rem",
                       color: "var(--ink)",
                       fontFamily: "var(--font-sans)",
+                      margin: 0,
                     }}
                   >
                     ৳ {parseFloat(order.total_price).toLocaleString()}
                   </p>
+
+                  <span
+                    style={{
+                      padding: "0.25rem 0.75rem",
+                      borderRadius: "999px",
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      fontFamily: "var(--font-sans)",
+                      textTransform: "capitalize",
+                      background:
+                        order.status === "delivered"
+                          ? "oklch(0.92 0.08 145)"
+                          : order.status === "cancelled"
+                          ? "oklch(0.94 0.05 27)"
+                          : order.status === "processing"
+                          ? "oklch(0.95 0.07 80)"
+                          : "oklch(0.93 0.03 80)",
+                      color:
+                        order.status === "delivered"
+                          ? "oklch(0.45 0.12 145)"
+                          : order.status === "cancelled"
+                          ? "oklch(0.45 0.18 27)"
+                          : order.status === "processing"
+                          ? "oklch(0.42 0.09 80)"
+                          : "var(--ink)",
+                    }}
+                  >
+                    {order.status}
+                  </span>
+                </div>
                 </div>
                 <div
                   style={{

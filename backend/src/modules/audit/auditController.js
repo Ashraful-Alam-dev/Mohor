@@ -3,8 +3,6 @@ import { getAllAuditLogsService } from './auditService.js';
 export const getAuditLogs = async (req, res) => {
   try {
     const { type } = req.query; 
-    // type = 'product' | 'user' | undefined
-
     const logs = await getAllAuditLogsService(type || null);
 
     return res.status(200).json({

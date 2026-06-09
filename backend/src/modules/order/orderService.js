@@ -9,7 +9,6 @@ export const createOrderInDb = async ({ userId, items, shippingAddress, phone, p
     let totalAmount = 0;
     const verifiedItems = [];
 
-    // Step A: Read specifications & calculate secure total amounts
     for (const item of items) {
       const [prodRows] = await connection.execute(
         'SELECT id, name, price, quantity FROM products WHERE id = ? FOR UPDATE',
@@ -37,14 +36,12 @@ export const createOrderInDb = async ({ userId, items, shippingAddress, phone, p
 
     const orderId = uuidv4(); 
 
-    // Store incoming paymentMethod parameter into the payment_reference column
     await connection.execute(
       `INSERT INTO orders (id, user_id, total_amount, shipping_name, shipping_phone, shipping_address, payment_reference, status) 
        VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')`,
       [orderId, userId, totalAmount, 'Customer Delivery', phone, shippingAddress, paymentMethod || 'Cash on Delivery']
     );
 
-    // Step C: Append lines to order_items & update inventory allocations
     for (const item of verifiedItems) {
       const orderItemId = uuidv4(); 
       

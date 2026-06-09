@@ -21,7 +21,7 @@ export default function CartPage() {
 
     const timer = setTimeout(() => {
       router.replace("/");
-    }, 1200); // small delay so user sees message
+    }, 1200); 
 
     return () => clearTimeout(timer);
   }

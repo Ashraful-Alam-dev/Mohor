@@ -2,7 +2,7 @@ import * as cartService from './cartService.js';
 
 export const addToCart = async (req, res, next) => {
   try {
-    // req.user.id is populated automatically by your JWT authentication validation middleware
+    
     const userId = req.user.id; 
     const { productId, quantity } = req.body;
 
@@ -19,7 +19,7 @@ export const addToCart = async (req, res, next) => {
 
 export const getCart = async (req, res, next) => {
   try {
-    // Safely extract user ID from auth token payload
+    
     const userId = req.user?.id || req.user?.uid || req.user;
 
     if (!userId || typeof userId === 'object') {
@@ -31,13 +31,13 @@ export const getCart = async (req, res, next) => {
 
     const items = await cartService.getUserCartFromDb(userId);
 
-    // Matching the productController pattern (success: true, key: data)
+    
     return res.status(200).json({ 
       success: true, 
       cart: items 
     });
   } catch (error) {
-    next(error); // Forwarding clean database handling to Express global middleware
+    next(error); 
   }
 };
 

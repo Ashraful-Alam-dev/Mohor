@@ -23,7 +23,6 @@ export default function InventoryPage() {
     images: [],
   });
 
-  // Protect the page - redirect if not authenticated or not admin
   useEffect(() => {
     if (!authLoading) {
       if (!isAuthenticated) {
@@ -120,7 +119,6 @@ export default function InventoryPage() {
 
     try {
       if (editingProduct) {
-        // For UPDATE - Send as JSON (not FormData)
         const updateData = {
           name: form.name,
           description: form.description,
@@ -138,7 +136,6 @@ export default function InventoryPage() {
           },
         });
       } else {
-        // For CREATE - Send as FormData with images
         const formData = new FormData();
         formData.append("name", form.name);
         formData.append("description", form.description);
@@ -190,7 +187,6 @@ export default function InventoryPage() {
     }
   };
 
-  // Show loading state while checking authentication
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -199,7 +195,6 @@ export default function InventoryPage() {
     );
   }
 
-  // Don't render anything if not admin (redirect will happen)
   if (!isAuthenticated || user?.role !== "admin") {
     return null;
   }
@@ -218,7 +213,6 @@ export default function InventoryPage() {
         </button>
       </div>
 
-      {/* TABLE */}
       <div className="bg-white border rounded-xl overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-neutral-100 text-left">
@@ -269,7 +263,6 @@ export default function InventoryPage() {
         </table>
       </div>
 
-      {/* MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
           <div className="bg-white w-full max-w-lg rounded-xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
@@ -331,7 +324,6 @@ export default function InventoryPage() {
                 className="w-full border p-2.5 rounded-xl focus:outline-none focus:border-emerald-600"
               />
               
-              {/* Only show image upload section when adding a new product */}
               {!editingProduct && (
                 <div className="flex flex-col gap-2">
                   <input
@@ -382,7 +374,6 @@ export default function InventoryPage() {
                 </div>
               )}
 
-              {/* Show current images for editing mode (read-only) */}
               {editingProduct && editingProduct.images && editingProduct.images.length > 0 && (
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-neutral-700">

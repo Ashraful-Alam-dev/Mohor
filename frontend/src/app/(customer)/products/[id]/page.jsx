@@ -1,11 +1,10 @@
-// src/app/(customer)/products/[id]/page.jsx
+
 import api from "@/services/api";
 import ProductDetails from "@/components/ProductDetails";
 import Link from "next/link";
 
-// This is a Server Component - no "use client" needed
+
 export default async function ProductDetailsPage({ params }) {
-  // Unwrap params Promise (required in Next.js 15+)
   const { id } = await params;
 
   try {
@@ -27,7 +26,6 @@ export default async function ProductDetailsPage({ params }) {
       );
     }
 
-    // Fetch related products from same category
     let relatedProducts = [];
     try {
       const relatedRes = await api.get(
@@ -38,7 +36,7 @@ export default async function ProductDetailsPage({ params }) {
         .filter((p) => String(p.id) !== String(id))
         .slice(0, 10);
     } catch {
-      // silently skip
+      
     }
 
     const getThumb = (images) => {
@@ -170,12 +168,12 @@ export default async function ProductDetailsPage({ params }) {
               </h2>
             </div>
 
-            {/* Scroll container */}
+            
             <div
               className="related-scroll"
               style={{ paddingBottom: "0.75rem", overflow: "hidden" }}
             >
-              {/* Track is duplicated for seamless loop */}
+              
               <div className="related-track">
                 {[...relatedProducts, ...relatedProducts].map((rel, i) => {
                   const thumb = getThumb(rel.images);

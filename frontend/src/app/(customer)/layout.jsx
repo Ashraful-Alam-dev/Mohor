@@ -1,6 +1,6 @@
 import "../globals.css";
 import { AuthProvider } from "@/context/AuthContext";
-import { CartProvider } from "@/context/CartContext"; // 🛒 Import the Cart Provider
+import { CartProvider } from "@/context/CartContext"; 
 import { OrderProvider } from "@/context/OrderContext";
 import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/Navbar";
@@ -15,9 +15,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="transition-colors duration-300">
-        {/* 1. Auth context sits at the root level */}
+        
         <AuthProvider>
-          {/* 2. Cart context sits inside Auth so it can listen to login/logout states safely */}
+          
           <CartProvider>
             <OrderProvider>
               <div
@@ -30,8 +30,6 @@ export default function RootLayout({ children }) {
                 }}
               >
                 <Navbar />
-
-                {/* This ensures your page contents flex grow to keep footer pinned at bottom */}
                 <main className="flex-grow">{children}</main>
 
                 <Footer />

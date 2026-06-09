@@ -13,23 +13,23 @@ export default function ProductDetails({ product }) {
     product.images?.[0]?.url || product.images?.[0] || null,
   );
 
-  // Modal Control States
+
   const [successToast, setSuccessToast] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [modalMode, setModalMode] = useState("cart"); // "cart" or "direct_order"
+  const [modalMode, setModalMode] = useState("cart"); 
   const [chosenQuantity, setChosenQuantity] = useState(1);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Helper function to get image URL
+  
   const getImageUrl = (image) => {
     if (typeof image === "string") return image;
     return image?.url || null;
   };
 
-  // Get all image URLs
+ 
   const imageUrls = product.images?.map((img) => getImageUrl(img)) || [];
 
-  // Interaction Guards
+  
   const handleAddToCartClick = () => {
     if (!isAuthenticated) {
       alert("Please log in to start saving premium catalog lines.");
@@ -66,7 +66,7 @@ export default function ProductDetails({ product }) {
         setIsSyncing(false);
       }
     } else {
-      // Direct Purchase Mode: Close modal and forward parameters over to the unified checkout page
+      
       setShowModal(false);
       router.push(`/checkout?product_id=${product.id}&qty=${chosenQuantity}`);
     }

@@ -48,7 +48,7 @@ export default function SettingsPage() {
           gap: "1.25rem",
         }}
       >
-        {/* Spinning gear icon */}
+       
         <div
           style={{
             width: "72px",
@@ -92,8 +92,6 @@ export default function SettingsPage() {
         >
           Coming Soon
         </p>
-
-        {/* Title */}
         <h1
           className="font-display"
           style={{
@@ -107,7 +105,6 @@ export default function SettingsPage() {
           Settings
         </h1>
 
-        {/* Description */}
         <p
           style={{
             fontSize: "0.9rem",
@@ -122,7 +119,6 @@ export default function SettingsPage() {
           harmony over your journey. Returning shortly.
         </p>
 
-        {/* Divider */}
         <div
           style={{
             width: "3rem",

@@ -7,11 +7,11 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-neutral-50 flex">
 
-      {/* MAIN CONTENT */}
+      
       <div className="flex-1 p-6">
         <h1 className="text-2xl font-black mb-6">Analytics Overview</h1>
 
-        {/* KPI ROW */}
+       
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <KpiCard title="Revenue" value="$12,450" />
           <KpiCard title="Orders" value="1,240" />
@@ -19,7 +19,7 @@ export default function AnalyticsPage() {
           <KpiCard title="Conversion" value="3.2%" />
         </div>
 
-        {/* CHART PLACEHOLDER */}
+      
         <div className="bg-white border rounded-xl p-6 mb-6">
           <h2 className="font-bold mb-4">Sales Performance</h2>
 
@@ -31,9 +31,9 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        {/* SECOND ROW */}
+        
         <div className="grid md:grid-cols-2 gap-4">
-          {/* TRAFFIC */}
+          
           <div className="bg-white border rounded-xl p-6">
             <h2 className="font-bold mb-4">Traffic Sources</h2>
 
@@ -55,7 +55,7 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          {/* TOP PRODUCTS */}
+         
           <div className="bg-white border rounded-xl p-6">
             <h2 className="font-bold mb-4">Top Products</h2>
 
@@ -77,7 +77,7 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        {/* FOOT NOTE */}
+      
         <div className="mt-8 text-center text-sm text-neutral-400">
           Analytics is UI-only. Backend integration coming soon.
         </div>

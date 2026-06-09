@@ -82,7 +82,7 @@ export default function HomePage() {
   return (
     <>
       <div className="min-h-screen">
-        {/* HERO */}
+        
         <div
           style={{
             background: "oklch(0.35 0.08 60)",
@@ -95,7 +95,7 @@ export default function HomePage() {
             backgroundSize: "8px 4px",
           }}
         >
-          {/* Store name */}
+      
           <p
             style={{
               fontSize: "0.7rem",
@@ -165,7 +165,6 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* SEARCH */}
         <div className="max-w-5xl mx-auto px-4 mt-6">
           <input
             type="text"
@@ -198,8 +197,6 @@ export default function HomePage() {
             }}
           />
         </div>
-
-        {/* CATEGORIES */}
         <div className="max-w-5xl mx-auto px-4 mt-4 flex gap-2 flex-wrap">
           <button
             onClick={() => handleCategory("all")}
@@ -294,10 +291,8 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* ERROR */}
         {error && <div className="text-center text-red-600 mt-4">{error}</div>}
 
-        {/* PRODUCTS */}
         <div className="max-w-6xl mx-auto px-4 mt-8 pb-12">
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">

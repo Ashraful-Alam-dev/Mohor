@@ -59,14 +59,14 @@ export default function AdminOrderManagement() {
     <div className="min-h-screen bg-stone-50 p-6 lg:p-10">
       <div className="max-w-7xl mx-auto">
         
-        {/* Dashboard Title Header */}
+      
         <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-display font-black text-neutral-900 tracking-tight">Order Oversight Console</h1>
             <p className="text-xs font-bold uppercase tracking-wider text-stone-400 mt-1">System Administration Hub</p>
           </div>
 
-          {/* Search Input Box */}
+          
           <div className="flex items-center gap-3 w-full md:w-auto">
             <input
               type="text"
@@ -81,7 +81,7 @@ export default function AdminOrderManagement() {
           </div>
         </div>
 
-        {/* Data Table */}
+       
         <div className="bg-white border border-stone-200 rounded-2xl shadow-xl shadow-stone-900/5 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -97,7 +97,6 @@ export default function AdminOrderManagement() {
                 {orders.map((order) => (
                   <tr key={order.order_id} className="hover:bg-stone-50/60 transition-colors">
                     
-                    {/* Column 1: Identity & Demographics */}
                     <td className="py-5 px-6 max-w-[280px]">
                       <div className="font-bold text-neutral-800 text-base">{order.user_name}</div>
                       <div className="font-mono text-xs text-stone-500 mt-1 font-semibold">{order.user_number}</div>
@@ -106,7 +105,7 @@ export default function AdminOrderManagement() {
                       </div>
                     </td>
 
-                    {/* Column 2: Defensive Row Iteration Item List */}
+                    
                     <td className="py-5 px-6">
                       <div className="space-y-2">
                         {(() => {
@@ -133,7 +132,7 @@ export default function AdminOrderManagement() {
                       </div>
                     </td>
 
-                    {/* Column 3: Totals & Payments */}
+                   
                     <td className="py-5 px-6 whitespace-nowrap">
                       <div className="text-lg font-black text-amber-700">৳ {parseFloat(order.total_price).toLocaleString()}</div>
                       <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mt-1">
@@ -141,7 +140,7 @@ export default function AdminOrderManagement() {
                       </div>
                     </td>
 
-                    {/* Column 4: Status Form Controls */}
+                    
                     <td className="py-5 px-6 text-center whitespace-nowrap">
                       <div className="flex flex-col items-center gap-2">
                         <select

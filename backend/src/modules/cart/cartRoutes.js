@@ -2,7 +2,6 @@ import express from 'express';
 import * as cartController from './cartController.js';
 import { authMiddleware } from '../../middleware/authMiddleware.js'; 
 import { roleMiddleware } from '../../middleware/roleMiddleware.js';
-// Ensure you point the path above to your backend's global JWT token checker middleware module
 
 const router = express.Router();
 
