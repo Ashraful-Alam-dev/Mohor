@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 export default function ProfilePage() {
   const router = useRouter();
   const { logout, user } = useAuth();
+  const [blockedMsg, setBlockedMsg] = useState(false);
 
   const [profile, setProfile] = useState({
     name: "",
@@ -27,38 +28,50 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
 
-  // BLOCK ADMIN
+  // BLOCK ADMIN USERS (FIXED)
   useEffect(() => {
-    if (user?.role === "admin") {
+  if (user && user.role === "admin") {
+    setBlockedMsg(true);
+
+    const timer = setTimeout(() => {
       router.replace("/");
-    }
-  }, [user]);
+    }, 1200); // small delay so user sees message
 
-  // LOAD DATA
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const [meRes, orderRes] = await Promise.all([
-          api.get("/auth/me"),
-          api.get("/orders/my-orders"),
-        ]);
+    return () => clearTimeout(timer);
+  }
+}, [user, router]);
 
-        if (meRes.data?.success) {
-          setProfile(meRes.data.user);
-        }
+ useEffect(() => {
+  if (!user) return;
+  
+  if (user.role === "admin") {
+    setLoading(false);
+    return;
+  }
 
-        if (orderRes.data?.success) {
-          setOrders(orderRes.data.orders || []);
-        }
-      } catch (err) {
-        toast.error("Failed to load profile");
-      } finally {
-        setLoading(false);
+  const load = async () => {
+    try {
+      const [meRes, orderRes] = await Promise.all([
+        api.get("/auth/me"),
+        api.get("/orders/my-orders"),
+      ]);
+
+      if (meRes.data?.success) {
+        setProfile(meRes.data.user);
       }
-    };
 
-    load();
-  }, []);
+      if (orderRes.data?.success) {
+        setOrders(orderRes.data.orders || []);
+      }
+    } catch (err) {
+      console.error("Failed to load profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  load();
+}, [user]);
 
   // PROFILE UPDATE
   const updateProfile = async () => {
@@ -101,6 +114,21 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen flex items-center justify-center text-neutral-500">
         Loading profile...
+      </div>
+    );
+  }
+
+  if (blockedMsg) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div style={{ textAlign: "center" }}>
+          <p style={{ fontWeight: 700, fontSize: "0.95rem" }}>
+            Access restricted
+          </p>
+          <p style={{ fontSize: "0.75rem", opacity: 0.7 }}>
+            Redirecting...
+          </p>
+        </div>
       </div>
     );
   }

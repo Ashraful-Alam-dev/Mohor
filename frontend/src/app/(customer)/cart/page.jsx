@@ -4,18 +4,49 @@ import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function CartPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const [blockedMsg, setBlockedMsg] = useState(false);
   const { cart, cartLoading, cartTotal, updateQuantity, removeFromCart } =
     useCart();
   const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+  if (user && user.role === "admin") {
+    setBlockedMsg(true);
+
+    const timer = setTimeout(() => {
+      router.replace("/");
+    }, 1200); // small delay so user sees message
+
+    return () => clearTimeout(timer);
+  }
+}, [user, router]);
 
   const showToast = (type, message, sub) => {
     setToast({ type, message, sub });
     setTimeout(() => setToast(null), 2000);
   };
+
+  if (blockedMsg) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div style={{ textAlign: "center" }}>
+          <p style={{ fontWeight: 700, fontSize: "0.95rem" }}>
+            Access restricted
+          </p>
+          <p style={{ fontSize: "0.75rem", opacity: 0.7 }}>
+            Redirecting...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-300">
       <style>{`
