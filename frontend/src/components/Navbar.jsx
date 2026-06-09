@@ -162,10 +162,10 @@ export default function Navbar() {
             </Link>
 
             {user ? (
-              <button className="nav-item">
+              <Link href="/profile" className="nav-item">
                 <User size={18} />
                 Profile
-              </button>
+              </Link>
             ) : (
               <Link
                 href="/login"

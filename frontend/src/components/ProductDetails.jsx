@@ -16,6 +16,7 @@ export default function ProductDetails({ product }) {
   // Modal Control States
   const [successToast, setSuccessToast] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [modalMode, setModalMode] = useState("cart"); // "cart" or "direct_order"
   const [chosenQuantity, setChosenQuantity] = useState(1);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -36,20 +37,38 @@ export default function ProductDetails({ product }) {
       return;
     }
     setChosenQuantity(1);
+    setModalMode("cart");
+    setShowModal(true);
+  };
+
+  const handleOrderClick = () => {
+    if (!isAuthenticated) {
+      alert("Please log in to initiate order creation pipelines.");
+      router.push("/login");
+      return;
+    }
+    setChosenQuantity(1);
+    setModalMode("direct_order");
     setShowModal(true);
   };
 
   const handleConfirmDone = async () => {
-    setIsSyncing(true);
-    try {
-      await addToCart(product.id, chosenQuantity);
+    if (modalMode === "cart") {
+      setIsSyncing(true);
+      try {
+        await addToCart(product.id, chosenQuantity);
+        setShowModal(false);
+        setSuccessToast(true);
+        setTimeout(() => setSuccessToast(false), 2000);
+      } catch (err) {
+        alert(err.message || "Failed to sync cart item selection.");
+      } finally {
+        setIsSyncing(false);
+      }
+    } else {
+      // Direct Purchase Mode: Close modal and forward parameters over to the unified checkout page
       setShowModal(false);
-      setSuccessToast(true);
-      setTimeout(() => setSuccessToast(false), 2000);
-    } catch (err) {
-      alert(err.message || "Failed to sync cart item selection.");
-    } finally {
-      setIsSyncing(false);
+      router.push(`/checkout?product_id=${product.id}&qty=${chosenQuantity}`);
     }
   };
 
@@ -328,9 +347,7 @@ export default function ProductDetails({ product }) {
             </button>
 
             <button
-              onClick={() =>
-                alert("Direct ordering pipeline integration queued next.")
-              }
+              onClick={handleOrderClick}
               className="product-btn"
               disabled={product.quantity === 0}
               style={{ flex: 1, maxWidth: "180px" }}
@@ -381,7 +398,9 @@ export default function ProductDetails({ product }) {
                   letterSpacing: "-0.01em",
                 }}
               >
-                How many would you like?
+                {modalMode === "cart" 
+                  ? "How many would you like?" 
+                  : "Review Direct Order Quantity"}
               </h3>
               <p
                 style={{
@@ -520,12 +539,18 @@ export default function ProductDetails({ product }) {
                   }
                 }}
               >
-                {isSyncing ? "Adding..." : "Confirm"}
+                {isSyncing 
+                  ? "Adding..." 
+                  : modalMode === "cart" 
+                    ? "Confirm" 
+                    : "Buy Now"}
               </button>
             </div>
           </div>
         </div>
       )}
+      
+      {/* Toast Notification block */}
       {successToast && (
         <div
           style={{
@@ -546,35 +571,17 @@ export default function ProductDetails({ product }) {
           }}
         >
           <style>{`
-      @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(16px); }
-        to   { opacity: 1; transform: translateY(0); }
-      }
-    `}</style>
-          <span
-            style={{
-              fontSize: "1.25rem",
-            }}
-          >
-            🛒
-          </span>
+            @keyframes fadeInUp {
+              from { opacity: 0; transform: translateY(16px); }
+              to   { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
+          <span style={{ fontSize: "1.25rem" }}>🛒</span>
           <div>
-            <p
-              style={{
-                fontWeight: 700,
-                color: "var(--ink)",
-                fontSize: "0.875rem",
-              }}
-            >
+            <p style={{ fontWeight: 700, color: "var(--ink)", fontSize: "0.875rem" }}>
               Added to cart!
             </p>
-            <p
-              style={{
-                fontSize: "0.75rem",
-                color: "oklch(0.5 0.04 80)",
-                marginTop: "0.1rem",
-              }}
-            >
+            <p style={{ fontSize: "0.75rem", color: "oklch(0.5 0.04 80)", marginTop: "0.1rem" }}>
               {chosenQuantity} × {product.name}
             </p>
           </div>
