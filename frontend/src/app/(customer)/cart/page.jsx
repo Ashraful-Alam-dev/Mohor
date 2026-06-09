@@ -17,14 +17,7 @@ export default function CartPage() {
     setTimeout(() => setToast(null), 2000);
   };
   return (
-    <div
-      className="min-h-screen flex flex-col transition-colors duration-300"
-      style={{
-        backgroundImage:
-          "radial-gradient(oklch(0.18 0.02 80 / 0.08) 1px, transparent 1px)",
-        backgroundSize: "8px 4px",
-      }}
-    >
+    <div className="min-h-screen flex flex-col transition-colors duration-300">
       <style>{`
       @keyframes fadeInUp {
         from { opacity: 0; transform: translateY(16px); }
