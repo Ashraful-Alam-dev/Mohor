@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, Settings, Info, User, Menu, X } from "lucide-react";
+import { ShoppingCart, Settings, Info, User, Menu, X, ChartColumnIncreasing } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useEffect, useState } from "react";
@@ -166,6 +166,11 @@ export default function Navbar() {
                 Settings
             </Link>
 
+            <Link href="/analytics" className="nav-item">
+              <ChartColumnIncreasing size={18} />
+                Analytics
+            </Link>
+
             <Link
               href="/cart"
               className="nav-item"
@@ -280,6 +285,14 @@ export default function Navbar() {
               onClick={() => setMenuOpen(false)}
             >
               Settings
+            </Link>
+
+            <Link
+              href="/analytics"
+              className="mobile-nav-item"
+              onClick={() => setMenuOpen(false)}
+            >
+              Analytics
             </Link>
 
             <Link

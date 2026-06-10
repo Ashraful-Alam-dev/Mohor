@@ -1,86 +1,144 @@
 "use client";
 
-import Link from "next/link";
-import KpiCard from "@/components/KpiCard";
+import { useEffect, useState } from "react";
+import api from "@/services/api";
 
-export default function AnalyticsPage() {
+export default function AdminAnalyticsPage() {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
+  const [reloading, setReloading] = useState(false);
+
+  const load = async () => {
+    try {
+      setLoading(true);
+
+      const res = await api.get("/analytics/admin");
+
+      if (res.data?.success) {
+        setData(res.data.data);
+      }
+    } catch (err) {
+      console.error("Admin analytics load failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const recalc = async () => {
+    try {
+      setReloading(true);
+
+      const res = await api.get("/analytics/recalculate");
+
+      if (res.data?.success) {
+        setData(res.data.data);
+      }
+    } catch (err) {
+      console.error("Recalculate failed");
+    } finally {
+      setReloading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading admin analytics...
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-neutral-50 flex">
+    <div className="min-h-screen p-6 bg-[var(--cream)]">
+      <div className="max-w-6xl mx-auto space-y-6">
 
-      
-      <div className="flex-1 p-6">
-        <h1 className="text-2xl font-black mb-6">Analytics Overview</h1>
+        {/* HEADER */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-black">Admin Analytics</h1>
+            <p className="text-sm opacity-70">
+              System-wide activity overview
+            </p>
+          </div>
 
-       
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <KpiCard title="Revenue" value="$12,450" />
-          <KpiCard title="Orders" value="1,240" />
-          <KpiCard title="Customers" value="860" />
-          <KpiCard title="Conversion" value="3.2%" />
+          <button
+            onClick={recalc}
+            disabled={reloading}
+            style={{
+              padding: "0.6rem 1rem",
+              borderRadius: "0.75rem",
+              background: "oklch(0.45 0.2 60)",
+              color: "white",
+              fontWeight: 700,
+            }}
+          >
+            {reloading ? "Updating..." : "Recalculate"}
+          </button>
         </div>
 
-      
-        <div className="bg-white border rounded-xl p-6 mb-6">
-          <h2 className="font-bold mb-4">Sales Performance</h2>
+        {/* SUMMARY */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-          <div className="h-72 bg-gradient-to-br from-emerald-50 to-white border rounded-xl flex items-center justify-center">
-            <div className="text-center text-neutral-500">
-              <div className="text-4xl mb-2">📊</div>
-              <p className="text-sm">Chart will be integrated here later</p>
-            </div>
+          <div className="p-4 bg-white rounded-xl shadow">
+            <p className="text-sm opacity-60">Total Admin Actions</p>
+            <h2 className="text-2xl font-bold">
+              {data?.totalAdminActions}
+            </h2>
+          </div>
+
+          <div className="p-4 bg-white rounded-xl shadow">
+            <p className="text-sm opacity-60">Total Action Types</p>
+            <h2 className="text-2xl font-bold">
+              {data?.actionBreakdown?.length || 0}
+            </h2>
+          </div>
+
+        </div>
+
+        {/* ACTION BREAKDOWN */}
+        <div className="p-4 bg-white rounded-xl shadow">
+          <h2 className="font-bold mb-3">System Action Breakdown</h2>
+
+          <div className="space-y-2">
+            {data?.actionBreakdown?.map((a, i) => (
+              <div
+                key={i}
+                className="flex justify-between border-b py-1 text-sm"
+              >
+                <span>{a.action_type}</span>
+                <span className="font-bold">{a.count}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        
-        <div className="grid md:grid-cols-2 gap-4">
-          
-          <div className="bg-white border rounded-xl p-6">
-            <h2 className="font-bold mb-4">Traffic Sources</h2>
+        {/* PRODUCT ACTIVITY LOGS */}
+        <div className="p-4 bg-white rounded-xl shadow">
+          <h2 className="font-bold mb-3">Product Activity Logs</h2>
 
-            <div className="space-y-3">
-              {[
-                { label: "Direct", value: "45%" },
-                { label: "Search", value: "30%" },
-                { label: "Social", value: "20%" },
-                { label: "Referral", value: "5%" },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="flex justify-between text-sm"
-                >
-                  <span className="text-neutral-600">{item.label}</span>
-                  <span className="font-bold">{item.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <div className="space-y-2 max-h-80 overflow-y-auto">
+            {data?.productStats?.slice(0, 10).map((log, i) => (
+              <div
+                key={i}
+                className="text-sm border-b py-1 opacity-80"
+              >
+                {log.description}
+              </div>
+            ))}
 
-         
-          <div className="bg-white border rounded-xl p-6">
-            <h2 className="font-bold mb-4">Top Products</h2>
-
-            <div className="space-y-3">
-              {["Product A", "Product B", "Product C", "Product D"].map(
-                (p, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between items-center border-b pb-2"
-                  >
-                    <span className="text-sm">{p}</span>
-                    <span className="text-sm font-bold text-emerald-700">
-                      ${Math.floor(Math.random() * 500 + 50)}
-                    </span>
-                  </div>
-                )
-              )}
-            </div>
+            {(!data?.productStats ||
+              data.productStats.length === 0) && (
+              <p className="text-sm opacity-60">
+                No product activity found
+              </p>
+            )}
           </div>
         </div>
 
-      
-        <div className="mt-8 text-center text-sm text-neutral-400">
-          Analytics is UI-only. Backend integration coming soon.
-        </div>
       </div>
     </div>
   );
