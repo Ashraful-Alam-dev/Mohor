@@ -50,7 +50,7 @@ export default function AnalyticsPage() {
   // Helper function to get max value for scaling
   const getMaxCount = (activities) => {
     if (!activities || activities.length === 0) return 1;
-    return Math.max(...activities.map(d => d.count), 1);
+    return Math.max(...activities.map((d) => d.count), 1);
   };
 
   // Calculate bar height (max 120px, with minimum 4px for visibility)
@@ -61,10 +61,10 @@ export default function AnalyticsPage() {
   };
 
   // Format date for display
-  const formatDate = (dateString, type = 'day') => {
+  const formatDate = (dateString, type = "day") => {
     const date = new Date(dateString);
-    if (type === 'week') {
-      return date.toLocaleDateString('en-US', { weekday: 'short' });
+    if (type === "week") {
+      return date.toLocaleDateString("en-US", { weekday: "short" });
     }
     return date.getDate().toString();
   };
@@ -81,221 +81,764 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--cream)] via-white to-[var(--mustard)]/5">
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        
+    <div
+      className="min-h-screen"
+      style={{
+        backgroundImage:
+          "radial-gradient(oklch(0.18 0.02 80 / 0.08) 1px, transparent 1px)",
+        backgroundSize: "8px 4px",
+      }}
+    >
+      <style>{`
+      @keyframes btnGlow {
+        0%   { box-shadow: 0 0 6px 1px oklch(0.45 0.1 60 / 0.3); }
+        14%  { box-shadow: 0 0 16px 5px oklch(0.45 0.1 60 / 0.6); }
+        28%  { box-shadow: 0 0 6px 1px oklch(0.45 0.1 60 / 0.3); }
+        42%  { box-shadow: 0 0 12px 3px oklch(0.45 0.1 60 / 0.5); }
+        70%  { box-shadow: 0 0 6px 1px oklch(0.45 0.1 60 / 0.25); }
+        100% { box-shadow: 0 0 6px 1px oklch(0.45 0.1 60 / 0.3); }
+      }
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      .analytics-card {
+        background: var(--cream);
+        border: 1px solid var(--border);
+        border-radius: 1.25rem;
+        box-shadow: 0 4px 20px oklch(0.18 0.02 80 / 0.08);
+        transition: transform 0.3s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.3s;
+        animation: fadeInUp 0.4s ease-out both;
+      }
+      .analytics-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px oklch(0.18 0.02 80 / 0.15);
+      }
+      .recalc-btn {
+        padding: 0.65rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 700;
+        font-family: var(--font-sans);
+        font-size: 0.875rem;
+        border: none;
+        cursor: pointer;
+        background: oklch(0.35 0.08 60);
+        color: var(--butter);
+        transition: background 0.2s, transform 0.15s;
+      }
+      .recalc-btn:hover:not(:disabled) {
+        background: oklch(0.28 0.08 60);
+        animation: btnGlow 2.4s ease-in-out infinite;
+        transform: translateY(-2px);
+      }
+      .recalc-btn:disabled {
+        background: oklch(0.75 0.02 80);
+        color: oklch(0.55 0.02 80);
+        cursor: not-allowed;
+      }
+      .bar-weekly:hover > .bar-fill-weekly { opacity: 0.75; }
+      .bar-monthly:hover > .bar-fill-monthly { opacity: 0.75; }
+    `}</style>
+
+      <div
+        style={{
+          maxWidth: "80rem",
+          margin: "0 auto",
+          padding: "2.5rem 1.25rem",
+        }}
+      >
         {/* HEADER */}
-        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            gap: "1rem",
+            marginBottom: "2.5rem",
+          }}
+        >
           <div>
-            <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-              Your Analytics Dashboard
+            <h1
+              className="font-display"
+              style={{
+                fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+                fontWeight: 900,
+                color: "var(--ink)",
+                lineHeight: 1.1,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Analytics Dashboard
             </h1>
-            <p className="text-sm text-gray-500 mt-1">
- Track your activity insights and patterns
+            <p
+              style={{
+                fontSize: "0.8rem",
+                color: "oklch(0.5 0.04 80)",
+                marginTop: "0.35rem",
+                fontFamily: "var(--font-sans)",
+              }}
+            >
+              Track your activity insights and patterns.
             </p>
           </div>
 
-          <button
-            onClick={recalc}
-            disabled={reloading}
-            className="relative px-6 py-2.5 rounded-xl bg-[var(--mustard)] text-white font-bold 
-                     transition-all duration-200 hover:scale-105 hover:shadow-lg 
-                     disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-          >
+          <button onClick={recalc} disabled={reloading} className="recalc-btn">
             {reloading ? (
-              <span className="flex items-center gap-2">
-                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+              <span
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+              >
+                <svg
+                  style={{
+                    width: "14px",
+                    height: "14px",
+                    animation: "spin 1s linear infinite",
+                  }}
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                    opacity="0.25"
+                  />
+                  <path
+                    fill="currentColor"
+                    opacity="0.75"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
                 </svg>
                 Updating...
               </span>
             ) : (
-              '⟳ Recalculate'
+              "⟳ Recalculate"
             )}
           </button>
         </div>
 
-        {/* SUMMARY CARDS - Removed Top Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-          {/* Total Actions Card */}
-          <div className="group relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-300">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--mustard)]/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500"></div>
-            <div className="relative p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-xl bg-[var(--mustard)]/20">
-                  <svg className="w-6 h-6 text-[var(--mustard)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <span className="text-xs font-medium text-gray-400">Lifetime</span>
+        {/* SUMMARY CARDS */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: "1.25rem",
+            marginBottom: "1.75rem",
+          }}
+        >
+          {/* Total Actions */}
+          <div
+            className="analytics-card"
+            style={{
+              padding: "1.5rem",
+              transition:
+                "transform 0.3s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.3s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow =
+                "0 12px 32px oklch(0.18 0.02 80 / 0.15)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow =
+                "0 4px 20px oklch(0.18 0.02 80 / 0.08)";
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: "1rem",
+              }}
+            >
+              <div
+                style={{
+                  padding: "0.6rem",
+                  borderRadius: "0.75rem",
+                  background: "oklch(0.35 0.08 60 / 0.12)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <svg
+                  style={{
+                    width: "20px",
+                    height: "20px",
+                    color: "oklch(0.35 0.08 60)",
+                  }}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
               </div>
-              <p className="text-sm text-gray-500 mb-1">Total Actions</p>
-              <h2 className="text-4xl font-black text-gray-800">{data?.totalActions || 0}</h2>
-              <div className="mt-4 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-[var(--mustard)] rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (data?.totalActions || 0) / 10)}%` }}></div>
-              </div>
+              <span
+                style={{
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  color: "oklch(0.6 0.04 80)",
+                  fontFamily: "var(--font-sans)",
+                }}
+              >
+                Lifetime
+              </span>
+            </div>
+            <p
+              style={{
+                fontSize: "0.75rem",
+                color: "oklch(0.5 0.04 80)",
+                fontFamily: "var(--font-sans)",
+                marginBottom: "0.3rem",
+              }}
+            >
+              Total Actions
+            </p>
+            <h2
+              className="font-display"
+              style={{
+                fontSize: "2.5rem",
+                fontWeight: 900,
+                color: "var(--ink)",
+                lineHeight: 1,
+              }}
+            >
+              {data?.totalActions || 0}
+            </h2>
+            <div
+              style={{
+                marginTop: "1rem",
+                height: "5px",
+                background: "var(--butter)",
+                borderRadius: "99px",
+                overflow: "hidden",
+                border: "1px solid var(--border)",
+              }}
+            >
+              <div
+                style={{
+                  height: "100%",
+                  background: "oklch(0.35 0.08 60)",
+                  borderRadius: "99px",
+                  width: `${Math.min(100, (data?.totalActions || 0) / 10)}%`,
+                  transition: "width 0.6s cubic-bezier(0.2,0.8,0.2,1)",
+                }}
+              />
             </div>
           </div>
 
-          {/* Most Active Type Card */}
-          <div className="group relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-300">
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full translate-y-16 -translate-x-16 group-hover:scale-150 transition-transform duration-500"></div>
-            <div className="relative p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-xl bg-purple-500/20">
-                  <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                </div>
-                <span className="text-xs font-medium text-gray-400">Trending</span>
+          {/* Most Active Type */}
+          <div className="analytics-card" style={{ padding: "1.5rem" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: "1rem",
+              }}
+            >
+              <div
+                style={{
+                  padding: "0.6rem",
+                  borderRadius: "0.75rem",
+                  background: "oklch(0.78 0.15 80 / 0.2)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <svg
+                  style={{
+                    width: "20px",
+                    height: "20px",
+                    color: "var(--mustard)",
+                  }}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                  />
+                </svg>
               </div>
-              <p className="text-sm text-gray-500 mb-1">Most Active Type</p>
-              <h2 className="text-2xl font-black text-gray-800 capitalize">
-                {data?.actionTypes?.[0]?.action_type || "N/A"}
-              </h2>
-              <p className="text-xs text-gray-400 mt-2">
-                {data?.actionTypes?.[0]?.count || 0} total actions
-              </p>
+              <span
+                style={{
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  color: "oklch(0.6 0.04 80)",
+                  fontFamily: "var(--font-sans)",
+                }}
+              >
+                Trending
+              </span>
             </div>
+            <p
+              style={{
+                fontSize: "0.75rem",
+                color: "oklch(0.5 0.04 80)",
+                fontFamily: "var(--font-sans)",
+                marginBottom: "0.3rem",
+              }}
+            >
+              Most Active Type
+            </p>
+            <h2
+              className="font-display"
+              style={{
+                fontSize: "1.75rem",
+                fontWeight: 900,
+                color: "var(--ink)",
+                lineHeight: 1.1,
+                textTransform: "capitalize",
+              }}
+            >
+              {data?.actionTypes?.[0]?.action_type || "N/A"}
+            </h2>
+            <p
+              style={{
+                fontSize: "0.75rem",
+                color: "oklch(0.5 0.04 80)",
+                marginTop: "0.5rem",
+                fontFamily: "var(--font-sans)",
+              }}
+            >
+              {data?.actionTypes?.[0]?.count || 0} total actions
+            </p>
           </div>
         </div>
 
         {/* ACTION BREAKDOWN */}
-        <div className="mb-8 rounded-2xl bg-white shadow-lg overflow-hidden">
-          <div className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white px-6 py-4">
-            <h2 className="font-bold text-gray-800 flex items-center gap-2">
-              <svg className="w-5 h-5 text-[var(--mustard)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
+        <div
+          className="analytics-card"
+          style={{ marginBottom: "1.75rem", overflow: "hidden" }}
+        >
+          <div
+            style={{
+              padding: "1rem 1.5rem",
+              borderBottom: "1px solid var(--border)",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.6rem",
+            }}
+          >
+            <svg
+              style={{
+                width: "18px",
+                height: "18px",
+                color: "var(--mustard)",
+                flexShrink: 0,
+              }}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
+            </svg>
+            <h2
+              style={{
+                fontSize: "0.875rem",
+                fontWeight: 900,
+                color: "var(--ink)",
+                fontFamily: "var(--font-sans)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
               Action Breakdown
             </h2>
           </div>
-          <div className="p-6">
-            <div className="space-y-3">
-              {data?.actionTypes?.map((a, i) => {
-                const total = data?.totalActions || 1;
-                const percentage = ((a.count / total) * 100).toFixed(1);
-                return (
-                  <div key={i} className="group">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm font-medium text-gray-600 capitalize flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[var(--mustard)] group-hover:scale-125 transition-transform"></span>
-                        {a.action_type}
+          <div
+            style={{
+              padding: "1.5rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+            }}
+          >
+            {data?.actionTypes?.map((a, i) => {
+              const total = data?.totalActions || 1;
+              const percentage = ((a.count / total) * 100).toFixed(1);
+              return (
+                <div key={i}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: "0.4rem",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "0.825rem",
+                        fontWeight: 700,
+                        color: "var(--ink)",
+                        fontFamily: "var(--font-sans)",
+                        textTransform: "capitalize",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: "7px",
+                          height: "7px",
+                          borderRadius: "50%",
+                          background:
+                            i % 2 === 0
+                              ? "oklch(0.35 0.08 60)"
+                              : "var(--mustard)",
+                          flexShrink: 0,
+                        }}
+                      />
+                      {a.action_type}
+                    </span>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "0.75rem",
+                        alignItems: "center",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "0.825rem",
+                          fontWeight: 900,
+                          color: "var(--ink)",
+                          fontFamily: "var(--font-sans)",
+                        }}
+                      >
+                        {a.count}
                       </span>
-                      <div className="flex gap-3">
-                        <span className="text-sm font-bold text-gray-800">{a.count}</span>
-                        <span className="text-xs text-gray-400">{percentage}%</span>
-                      </div>
-                    </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-[var(--mustard)] to-[var(--mustard)]/60 rounded-full transition-all duration-500 group-hover:opacity-80"
-                        style={{ width: `${percentage}%` }}
-                      ></div>
+                      <span
+                        style={{
+                          fontSize: "0.7rem",
+                          color: "oklch(0.55 0.04 80)",
+                          fontFamily: "var(--font-sans)",
+                        }}
+                      >
+                        {percentage}%
+                      </span>
                     </div>
                   </div>
-                );
-              })}
-              {(!data?.actionTypes || data.actionTypes.length === 0) && (
-                <p className="text-center text-gray-400 py-4">No actions recorded yet</p>
-              )}
-            </div>
+                  <div
+                    style={{
+                      height: "6px",
+                      background: "var(--butter)",
+                      borderRadius: "99px",
+                      overflow: "hidden",
+                      border: "1px solid var(--border)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: "100%",
+                        borderRadius: "99px",
+                        width: `${percentage}%`,
+                        background:
+                          i % 2 === 0
+                            ? "oklch(0.35 0.08 60)"
+                            : "var(--mustard)",
+                        transition: "width 0.6s cubic-bezier(0.2,0.8,0.2,1)",
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+            {(!data?.actionTypes || data.actionTypes.length === 0) && (
+              <p
+                style={{
+                  textAlign: "center",
+                  color: "oklch(0.55 0.04 80)",
+                  fontSize: "0.875rem",
+                  fontFamily: "var(--font-sans)",
+                  padding: "1rem 0",
+                }}
+              >
+                No actions recorded yet.
+              </p>
+            )}
           </div>
         </div>
 
         {/* WEEKLY ACTIVITY */}
-        <div className="mb-8 rounded-2xl bg-white shadow-lg overflow-hidden">
-            <div className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white px-6 py-4">
-                <h2 className="font-bold text-gray-800 flex items-center gap-2">
-                <svg className="w-5 h-5 text-[var(--mustard)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                Weekly Activity (Last 7 Days)
-                </h2>
-            </div>
-            <div className="p-6">
-                {data?.weeklyActivity && data.weeklyActivity.length > 0 ? (
-                <>
-                    <div className="flex items-end justify-around gap-2 h-48 mb-4">
-                    {data.weeklyActivity.map((d, i) => {
-                        const maxCount = getMaxCount(data.weeklyActivity);
-                        const barHeight = getBarHeight(d.count, maxCount);
-                        return (
-                        <div key={i} className="flex flex-col items-center flex-1 group">
-                            <div className="relative w-full flex justify-center">
-                            <div
-                                className="w-12 bg-gradient-to-t from-[var(--mustard)] to-[var(--mustard)]/60 rounded-t-lg transition-all duration-300 group-hover:opacity-80"
-                                style={{ height: `${barHeight}px` }}
-                            >
-                                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                {d.count} actions
-                                </div>
-                            </div>
-                            </div>
-                            <span className="text-xs text-gray-500 mt-2 font-medium">
-                            {formatDate(d.date, 'week')}
-                            </span>
-                        </div>
-                        );
-                    })}
-                    </div>
-                    <div className="text-center text-xs text-gray-400 mt-4">
-                    Max: {getMaxCount(data.weeklyActivity)} actions in a day
-                    </div>
-                </>
-                ) : (
-                <p className="text-center text-gray-400 py-8">No weekly activity data available</p>
-                )}
-            </div>
+        <div
+          className="analytics-card"
+          style={{ marginBottom: "1.75rem", overflow: "hidden" }}
+        >
+          <div
+            style={{
+              padding: "1rem 1.5rem",
+              borderBottom: "1px solid var(--border)",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.6rem",
+            }}
+          >
+            <svg
+              style={{
+                width: "18px",
+                height: "18px",
+                color: "var(--mustard)",
+                flexShrink: 0,
+              }}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            <h2
+              style={{
+                fontSize: "0.875rem",
+                fontWeight: 900,
+                color: "var(--ink)",
+                fontFamily: "var(--font-sans)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              Weekly Activity — Last 7 Days
+            </h2>
+          </div>
+          <div style={{ padding: "1.5rem" }}>
+            {data?.weeklyActivity && data.weeklyActivity.length > 0 ? (
+              <>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-end",
+                    justifyContent: "space-around",
+                    gap: "0.5rem",
+                    height: "140px",
+                    marginBottom: "0.75rem",
+                  }}
+                >
+                  {data.weeklyActivity.map((d, i) => {
+                    const maxCount = getMaxCount(data.weeklyActivity);
+                    const barHeight = getBarHeight(d.count, maxCount);
+                    return (
+                      <div
+                        key={i}
+                        className="bar-weekly"
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          flex: 1,
+                          position: "relative",
+                        }}
+                        title={`${d.count} actions`}
+                      >
+                        <div
+                          className="bar-fill-weekly"
+                          style={{
+                            width: "100%",
+                            maxWidth: "40px",
+                            height: `${barHeight}px`,
+                            background: "oklch(0.35 0.08 60)",
+                            borderRadius: "0.4rem 0.4rem 0 0",
+                            transition:
+                              "opacity 0.2s, height 0.4s cubic-bezier(0.2,0.8,0.2,1)",
+                            boxShadow: "0 4px 12px oklch(0.35 0.08 60 / 0.25)",
+                          }}
+                        />
+                        <span
+                          style={{
+                            fontSize: "0.7rem",
+                            fontWeight: 700,
+                            color: "oklch(0.55 0.04 80)",
+                            fontFamily: "var(--font-sans)",
+                            marginTop: "0.4rem",
+                          }}
+                        >
+                          {formatDate(d.date, "week")}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p
+                  style={{
+                    textAlign: "center",
+                    fontSize: "0.7rem",
+                    color: "oklch(0.6 0.04 80)",
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
+                  Peak: {getMaxCount(data.weeklyActivity)} actions in a day
+                </p>
+              </>
+            ) : (
+              <p
+                style={{
+                  textAlign: "center",
+                  color: "oklch(0.55 0.04 80)",
+                  fontSize: "0.875rem",
+                  fontFamily: "var(--font-sans)",
+                  padding: "2rem 0",
+                }}
+              >
+                No weekly activity data available.
+              </p>
+            )}
+          </div>
         </div>
 
         {/* MONTHLY ACTIVITY */}
-        <div className="rounded-2xl bg-white shadow-lg overflow-hidden">
-          <div className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white px-6 py-4">
-            <h2 className="font-bold text-gray-800 flex items-center gap-2">
-              <svg className="w-5 h-5 text-[var(--mustard)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Monthly Activity (Last 30 Days)
+        <div className="analytics-card" style={{ overflow: "hidden" }}>
+          <div
+            style={{
+              padding: "1rem 1.5rem",
+              borderBottom: "1px solid var(--border)",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.6rem",
+            }}
+          >
+            <svg
+              style={{
+                width: "18px",
+                height: "18px",
+                color: "var(--mustard)",
+                flexShrink: 0,
+              }}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            <h2
+              style={{
+                fontSize: "0.875rem",
+                fontWeight: 900,
+                color: "var(--ink)",
+                fontFamily: "var(--font-sans)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              Monthly Activity — Last 30 Days
             </h2>
           </div>
-          <div className="p-6">
+          <div style={{ padding: "1.5rem" }}>
             {data?.monthlyActivity && data.monthlyActivity.length > 0 ? (
               <>
-                <div className="flex items-end justify-around gap-1 h-48 mb-4">
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-end",
+                    justifyContent: "space-around",
+                    gap: "2px",
+                    height: "140px",
+                    marginBottom: "0.75rem",
+                  }}
+                >
                   {data.monthlyActivity.map((d, i) => {
                     const maxCount = getMaxCount(data.monthlyActivity);
                     const barHeight = getBarHeight(d.count, maxCount);
                     return (
-                      <div key={i} className="flex flex-col items-center flex-1 group">
-                        <div className="relative w-full flex justify-center">
-                          <div
-                            className="w-full max-w-[8px] bg-gradient-to-t from-purple-500 to-purple-300 rounded-t transition-all duration-300 group-hover:opacity-80"
-                            style={{ height: `${barHeight}px` }}
-                          >
-                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                              {d.count} actions
-                            </div>
-                          </div>
-                        </div>
-                        <span className="text-[10px] text-gray-500 mt-2">
+                      <div
+                        key={i}
+                        className="bar-monthly"
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          flex: 1,
+                          position: "relative",
+                        }}
+                        title={`${d.count} actions`}
+                      >
+                        <div
+                          className="bar-fill-monthly"
+                          style={{
+                            width: "100%",
+                            maxWidth: "10px",
+                            height: `${barHeight}px`,
+                            background: "var(--mustard)",
+                            borderRadius: "0.25rem 0.25rem 0 0",
+                            transition:
+                              "opacity 0.2s, height 0.4s cubic-bezier(0.2,0.8,0.2,1)",
+                            boxShadow: "0 4px 10px oklch(0.78 0.15 80 / 0.3)",
+                          }}
+                        />
+                        <span
+                          style={{
+                            fontSize: "0.55rem",
+                            color: "oklch(0.6 0.04 80)",
+                            fontFamily: "var(--font-sans)",
+                            marginTop: "0.3rem",
+                          }}
+                        >
                           {formatDate(d.date)}
                         </span>
                       </div>
                     );
                   })}
                 </div>
-                <div className="text-center text-xs text-gray-400 mt-4">
+                <p
+                  style={{
+                    textAlign: "center",
+                    fontSize: "0.7rem",
+                    color: "oklch(0.6 0.04 80)",
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
                   {data.monthlyActivity.length} active days in the last 30 days
-                </div>
+                </p>
               </>
             ) : (
-              <p className="text-center text-gray-400 py-8">No monthly activity data available</p>
+              <p
+                style={{
+                  textAlign: "center",
+                  color: "oklch(0.55 0.04 80)",
+                  fontSize: "0.875rem",
+                  fontFamily: "var(--font-sans)",
+                  padding: "2rem 0",
+                }}
+              >
+                No monthly activity data available.
+              </p>
             )}
           </div>
         </div>
-
       </div>
     </div>
   );
