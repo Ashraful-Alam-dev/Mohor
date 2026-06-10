@@ -73,4 +73,3 @@ CREATE TABLE audit_logs (
     description TEXT NOT NULL, 
     executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-

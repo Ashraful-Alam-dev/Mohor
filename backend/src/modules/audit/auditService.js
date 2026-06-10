@@ -115,7 +115,6 @@ export const logProductUpdated = async (
     changes.push(`Description updated`);
   }
 
-  // ❗ IMPORTANT: ONLY ONE LOG ENTRY
   if (changes.length === 0) return;
 
   await createAuditLog({
@@ -210,10 +209,236 @@ export const getAllAuditLogsService = async (
     LIMIT 500
   `;
 
-  const [rows] = await pool.execute(
-    query,
-    params
-  );
-
+  const [rows] = await pool.execute(query, params);
   return rows;
+};
+
+/* ===========================
+   CART AUDIT METHODS
+=========================== */
+
+// FIXED: Accept productId and fetch product details if needed
+export const logCartAdded = async (
+  productId,  // Can be string ID or product object
+  actorUserId,
+  quantity = 1
+) => {
+  // Check if product is an object with name property or just ID
+  let productName = 'Product';
+  let finalProductId = productId;
+  
+  if (typeof productId === 'object' && productId !== null) {
+    // Product object passed
+    productName = productId.name || productId.product_name || 'Product';
+    finalProductId = productId.id || productId.product_id;
+  } else {
+    // Just product ID passed - optionally fetch product name
+    try {
+      const [product] = await pool.execute(
+        'SELECT name FROM products WHERE id = ? LIMIT 1',
+        [productId]
+      );
+      if (product.length > 0) {
+        productName = product[0].name;
+      }
+    } catch (error) {
+      console.error('Error fetching product name for audit:', error);
+    }
+  }
+  
+  await createAuditLog({
+    actionType: "Cart",
+    entityType: "cart",
+    entityId: finalProductId,
+    actorUserId,
+    description: `Added ${quantity} x ${productName} to cart`,
+  });
+};
+
+// FIXED: Accept productId and fetch product details
+export const logCartRemoved = async (
+  product,  // Can be product object or product ID
+  actorUserId,
+  quantity = null
+) => {
+  let productName = 'Product';
+  let productId = product;
+  let quantityText = '';
+  
+  if (typeof product === 'object' && product !== null) {
+    // Product object passed
+    productName = product.name || product.product_name || 'Product';
+    productId = product.id || product.product_id;
+    quantityText = quantity ? ` (${quantity} units)` : '';
+  } else {
+    // Just product ID passed
+    try {
+      const [prodResult] = await pool.execute(
+        'SELECT name FROM products WHERE id = ? LIMIT 1',
+        [product]
+      );
+      if (prodResult.length > 0) {
+        productName = prodResult[0].name;
+      }
+      quantityText = quantity ? ` (${quantity} units)` : '';
+    } catch (error) {
+      console.error('Error fetching product name for audit:', error);
+    }
+  }
+  
+  await createAuditLog({
+    actionType: "Cart",
+    entityType: "cart",
+    entityId: productId,
+    actorUserId,
+    description: `Removed ${productName} from cart${quantityText}`,
+  });
+};
+
+// FIXED: Accept productId and fetch product details
+export const logCartQuantityUpdated = async (
+  product,  // Can be product object or product ID
+  oldQuantity,
+  newQuantity,
+  actorUserId
+) => {
+  let productName = 'Product';
+  let productId = product;
+  
+  if (typeof product === 'object' && product !== null) {
+    // Product object passed
+    productName = product.name || product.product_name || 'Product';
+    productId = product.id || product.product_id;
+  } else {
+    // Just product ID passed
+    try {
+      const [prodResult] = await pool.execute(
+        'SELECT name FROM products WHERE id = ? LIMIT 1',
+        [product]
+      );
+      if (prodResult.length > 0) {
+        productName = prodResult[0].name;
+      }
+    } catch (error) {
+      console.error('Error fetching product name for audit:', error);
+    }
+  }
+  
+  await createAuditLog({
+    actionType: "Cart",
+    entityType: "cart",
+    entityId: productId,
+    actorUserId,
+    description: `${productName} quantity changed: ${oldQuantity} → ${newQuantity}`,
+  });
+};
+
+/* ===========================
+   ORDER AUDIT METHODS
+=========================== */
+
+// Add these to your existing auditService.js
+
+/* ===========================
+   ORDER AUDIT METHODS (Enhanced)
+=========================== */
+
+export const logOrderPlaced = async (order, actorUserId) => {
+  await createAuditLog({
+    actionType: "Order",
+    entityType: "order",
+    entityId: order.id,
+    actorUserId,
+    description: `Placed order worth ৳${order.total_amount}`,
+  });
+};
+
+export const logOrderStatusUpdated = async (
+  orderId,
+  oldStatus,
+  newStatus,
+  actorUserId,
+  actorRole,
+  orderDetails = null
+) => {
+  let description = `Order status updated: ${oldStatus} → ${newStatus}`;
+  
+  if (orderDetails) {
+    description += ` for order worth ৳${orderDetails.total_price || orderDetails.total_amount}`;
+  }
+  
+  if (actorRole === 'admin') {
+    description += ` by admin`;
+  }
+  
+  await createAuditLog({
+    actionType: "Order",
+    entityType: "order",
+    entityId: orderId,
+    actorUserId,
+    description: description,
+  });
+};
+
+export const logOrderCancelled = async (
+  orderId,
+  actorUserId,
+  actorRole = 'user',
+  orderDetails = null
+) => {
+  let description = `Order cancelled`;
+  
+  if (orderDetails) {
+    description += ` (worth ৳${orderDetails.total_price || orderDetails.total_amount})`;
+  }
+  
+  if (actorRole === 'admin') {
+    description += ` by admin`;
+  } else {
+    description += ` by customer`;
+  }
+  
+  await createAuditLog({
+    actionType: "Order",
+    entityType: "order",
+    entityId: orderId,
+    actorUserId,
+    description: description,
+  });
+};
+
+// Optional: For tracking order views
+export const logOrderViewed = async (userId, orderCount) => {
+  await createAuditLog({
+    actionType: "View",
+    entityType: "order",
+    entityId: null,
+    actorUserId: userId,
+    description: `Viewed ${orderCount} order(s)`,
+  });
+};
+
+export const logOrderDetailView = async (orderId, userId, userRole) => {
+  await createAuditLog({
+    actionType: "View",
+    entityType: "order",
+    entityId: orderId,
+    actorUserId: userId,
+    description: `Viewed order details${userRole === 'admin' ? ' (admin)' : ''}`,
+  });
+};
+
+export const logAdminOrderView = async (adminId, orderCount, searchTerm = null) => {
+  let description = `Admin viewed ${orderCount} order(s)`;
+  if (searchTerm) {
+    description += ` searching for "${searchTerm}"`;
+  }
+  
+  await createAuditLog({
+    actionType: "View",
+    entityType: "order",
+    entityId: null,
+    actorUserId: adminId,
+    description: description,
+  });
 };

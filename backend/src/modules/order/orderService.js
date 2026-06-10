@@ -30,7 +30,8 @@ export const createOrderInDb = async ({ userId, items, shippingAddress, phone, p
       verifiedItems.push({
         product_id: product.id,
         quantity: item.selected_quantity,
-        price_at_purchase: product.price
+        price_at_purchase: product.price,
+        product_name: product.name
       });
     }
 
@@ -152,4 +153,84 @@ export const updateOrderStatusInDb = async (orderId, status) => {
     throw new Error('Target order identifier lookup failed.');
   }
   return true;
+};
+
+// NEW: Get order by ID with access control
+export const getOrderByIdFromDb = async (orderId, userId = null, userRole = null) => {
+  let query = `
+    SELECT 
+      o.id AS order_id,
+      o.user_id,
+      o.total_amount AS total_price,
+      o.status,
+      o.created_at AS ordertime,
+      o.shipping_name,
+      o.shipping_phone,
+      o.shipping_address,
+      COALESCE(o.payment_reference, 'Cash on Delivery') AS payment_method,
+      JSON_ARRAYAGG(
+        JSON_OBJECT(
+          'product_id', p.id,
+          'product_name', p.name,
+          'quantity', oi.quantity,
+          'price_at_purchase', oi.price_at_purchase,
+          'subtotal', (oi.quantity * oi.price_at_purchase)
+        )
+      ) AS items
+    FROM orders o
+    LEFT JOIN order_items oi ON o.id = oi.order_id
+    LEFT JOIN products p ON oi.product_id = p.id
+    WHERE o.id = ?
+  `;
+  
+  const params = [orderId];
+  
+  // If userId is provided and user is not admin, filter by user_id
+  if (userId && userRole !== 'admin') {
+    query += ` AND o.user_id = ?`;
+    params.push(userId);
+  }
+  
+  query += ` GROUP BY o.id`;
+  
+  const [rows] = await pool.execute(query, params);
+  
+  if (rows.length === 0) return null;
+  
+  // Parse items if they're stored as JSON string
+  if (rows[0].items && typeof rows[0].items === 'string') {
+    rows[0].items = JSON.parse(rows[0].items);
+  }
+  
+  return rows[0];
+};
+
+// NEW: Restore product quantities when order is cancelled
+export const restoreOrderQuantities = async (orderId) => {
+  const connection = await pool.getConnection();
+  await connection.beginTransaction();
+  
+  try {
+    // Get order items
+    const [items] = await connection.execute(
+      `SELECT product_id, quantity FROM order_items WHERE order_id = ?`,
+      [orderId]
+    );
+    
+    // Restore quantities
+    for (const item of items) {
+      await connection.execute(
+        `UPDATE products SET quantity = quantity + ? WHERE id = ?`,
+        [item.quantity, item.product_id]
+      );
+    }
+    
+    await connection.commit();
+    return true;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 };

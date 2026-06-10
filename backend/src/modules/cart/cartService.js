@@ -63,6 +63,25 @@ export const getUserCartFromDb = async (userId) => {
   return rows;
 };
 
+export const getCartItemByIdFromDb = async (itemId) => {
+  const [rows] = await pool.execute(
+    `
+    SELECT 
+      ci.id,
+      ci.product_id,
+      ci.quantity,
+      p.name AS product_name
+    FROM cart_items ci
+    JOIN products p ON p.id = ci.product_id
+    WHERE ci.id = ?
+    LIMIT 1
+    `,
+    [itemId]
+  );
+
+  return rows.length ? rows[0] : null;
+};
+
 
 export const updateCartItemQuantityInDb = async (userId, itemId, quantity) => {
 

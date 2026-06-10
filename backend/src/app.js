@@ -5,6 +5,7 @@ import productRoutes from './modules/products/productRoutes.js';
 import cartRoutes from './modules/cart/cartRoutes.js';
 import orderRoutes from './modules/order/orderRoutes.js';
 import auditRoutes from './modules/audit/auditRoutes.js';
+import analyticsRoutes from './modules/analytics/analyticsRoutes.js';
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin/audit', auditRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
